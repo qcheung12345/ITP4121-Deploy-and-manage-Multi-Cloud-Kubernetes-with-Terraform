@@ -357,6 +357,31 @@ td {
   vertical-align: top;
 }
 
+.actions-col {
+  white-space: nowrap;
+}
+
+.table-btn {
+  display: inline-block;
+  border: 1px solid #a6a6a1;
+  border-radius: 6px;
+  padding: 0.2rem 0.5rem;
+  font-size: 0.82rem;
+  background: #f8f8f5;
+  cursor: pointer;
+}
+
+.table-btn.danger {
+  border-color: #b35b5b;
+  color: #8d2828;
+  background: #fff4f4;
+}
+
+.inline-form {
+  display: inline;
+  margin-left: 0.3rem;
+}
+
 th {
   background: #f1f1ef;
 }

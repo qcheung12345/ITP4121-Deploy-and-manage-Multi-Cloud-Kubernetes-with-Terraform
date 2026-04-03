@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Edit Comment</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+  </head>
+  <body class="add-page-body">
+    <main class="add-panel">
+      <header class="mini-nav">
+        <a href="{{ url_for('index') }}">Home</a>
+        <a href="{{ url_for('data_page') }}">Data</a>
+      </header>
+
+      <h1>Edit comment #{{ message[0] }}</h1>
+      <form action="{{ url_for('update_message', message_id=message[0]) }}" method="post" class="add-form">
+        <label for="name">Name</label>
+        <input id="name" name="name" type="text" maxlength="100" value="{{ message[1] }}" required />
+
+        <label for="content">Comment</label>
+        <textarea id="content" name="content" rows="4" required>{{ message[2] }}</textarea>
+
+        <button type="submit">save changes</button>
+      </form>
+    </main>
+  </body>
+</html>

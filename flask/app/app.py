@@ -34,6 +34,20 @@ def fetch_messages(limit=None):
             return cur.fetchall()
 
 
+def fetch_message_by_id(message_id):
+    with closing(get_connection()) as conn:
+        with conn, conn.cursor() as cur:
+            cur.execute(
+                """
+                SELECT id, name, content, created_at
+                FROM messages
+                WHERE id = %s;
+                """,
+                (message_id,),
+            )
+            return cur.fetchone()
+
+
 def fetch_reactions():
     with closing(get_connection()) as conn:
         with conn, conn.cursor() as cur:
@@ -150,6 +164,42 @@ def add_message():
     return redirect(url_for("index"))
 
 
+@app.route("/edit/<int:message_id>", methods=["GET"])
+def edit_message_page(message_id):
+    message = fetch_message_by_id(message_id)
+    if not message:
+        return redirect(url_for("data_page"))
+    return render_template("edit.html", message=message)
+
+
+@app.route("/update/<int:message_id>", methods=["POST"])
+def update_message(message_id):
+    name = request.form.get("name", "").strip()
+    content = request.form.get("content", "").strip()
+
+    if name and content:
+        with closing(get_connection()) as conn:
+            with conn, conn.cursor() as cur:
+                cur.execute(
+                    """
+                    UPDATE messages
+                    SET name = %s, content = %s
+                    WHERE id = %s;
+                    """,
+                    (name, content, message_id),
+                )
+
+    return redirect(url_for("data_page"))
+
+
+@app.route("/delete/<int:message_id>", methods=["POST"])
+def delete_message(message_id):
+    with closing(get_connection()) as conn:
+        with conn, conn.cursor() as cur:
+            cur.execute("DELETE FROM messages WHERE id = %s;", (message_id,))
+    return redirect(url_for("data_page"))
+
+
 @app.route("/data", methods=["GET"])
 def data_page():
     messages = fetch_messages()
@@ -170,6 +220,71 @@ def comments_api():
         for row in messages
     ]
     return jsonify(payload)
+
+
+@app.route("/api/comments/<int:message_id>", methods=["GET"])
+def comment_detail_api(message_id):
+    row = fetch_message_by_id(message_id)
+    if not row:
+        return jsonify({"error": "Comment not found"}), 404
+    return jsonify(
+        {
+            "id": row[0],
+            "name": row[1],
+            "content": row[2],
+            "created_at": row[3].isoformat() if row[3] else None,
+        }
+    )
+
+
+@app.route("/api/comments/<int:message_id>", methods=["PUT"])
+def comment_update_api(message_id):
+    payload = request.get_json(silent=True) or {}
+    name = str(payload.get("name", "")).strip()
+    content = str(payload.get("content", "")).strip()
+    if not name or not content:
+        return jsonify({"error": "name and content are required"}), 400
+
+    with closing(get_connection()) as conn:
+        with conn, conn.cursor() as cur:
+            cur.execute(
+                """
+                UPDATE messages
+                SET name = %s, content = %s
+                WHERE id = %s
+                RETURNING id, name, content, created_at;
+                """,
+                (name, content, message_id),
+            )
+            row = cur.fetchone()
+
+    if not row:
+        return jsonify({"error": "Comment not found"}), 404
+
+    return jsonify(
+        {
+            "id": row[0],
+            "name": row[1],
+            "content": row[2],
+            "created_at": row[3].isoformat() if row[3] else None,
+        }
+    )
+
+
+@app.route("/api/comments/<int:message_id>", methods=["DELETE"])
+def comment_delete_api(message_id):
+    with closing(get_connection()) as conn:
+        with conn, conn.cursor() as cur:
+            cur.execute(
+                "DELETE FROM messages WHERE id = %s RETURNING id;",
+                (message_id,),
+            )
+            row = cur.fetchone()
+
+    if not row:
+        return jsonify({"error": "Comment not found"}), 404
+
+    return jsonify({"deleted": True, "id": row[0]})
 
 
 @app.route("/api/reactions", methods=["GET"])
