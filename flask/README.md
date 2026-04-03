@@ -3,20 +3,23 @@
 This repository now contains a simple guestbook website built with Flask and PostgreSQL.
 Both services run in Docker using `docker compose`.
 
-## Project Structure
+## Structure
 
 ```text
-.
-├── Dockerfile
-├── docker-compose.yml
-└── app
-	 ├── app.py
-	 ├── init.sql
-	 ├── requirements.txt
-	 ├── static
-	 │   └── style.css
-	 └── templates
-		  └── index.html
+flask/
+├── app/
+│   ├── app.py                  # 主應用文件
+│   ├── requirements.txt        # Python 依賴
+│   ├── init.sql                # 資料庫初始化
+│   ├── static/
+│   │   └── style.css           # 頁面樣式
+│   └── templates/
+│       ├── index.html          # 主頁面
+│       ├── add_comment.html    # 新增留言頁
+│       └── data.html           # 資料頁
+├── Dockerfile                  # Docker 設定
+├── docker-compose.yml          # 多容器啟動設定
+└── README.md                   # 說明文檔
 ```
 
 ## Services
@@ -29,6 +32,7 @@ Both services run in Docker using `docker compose`.
 1. Build and start the containers:
 
 	```bash
+	cd flask
 	docker compose up --build
 	```
 
@@ -41,12 +45,14 @@ Both services run in Docker using `docker compose`.
 3. Stop services:
 
 	```bash
+	cd flask
 	docker compose down
 	```
 
 4. Stop and remove all data (including DB volume):
 
 	```bash
+	cd flask
 	docker compose down -v
 	```
 
