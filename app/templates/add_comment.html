@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Add Comment</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+  </head>
+  <body class="add-page-body">
+    <main class="add-panel">
+      <header class="mini-nav">
+        <a href="{{ url_for('index') }}">Home</a>
+        <a href="{{ url_for('data_page') }}">Data</a>
+      </header>
+
+      <h1>Tell us what you think!</h1>
+      <form action="{{ url_for('add_message') }}" method="post" class="add-form">
+        <label for="name">Name</label>
+        <input id="name" name="name" type="text" maxlength="100" required />
+
+        <label for="content">Comment</label>
+        <textarea id="content" name="content" rows="3" placeholder="Write your comment here, don't forget to be nice" required></textarea>
+
+        <button type="submit">submit comment</button>
+      </form>
+
+      <section class="sample-comments">
+        <article>
+          <h2>*Princess*</h2>
+          <time>December 27, 2012</time>
+          <p>This article is awesome. The style is perfect. What a wonderful posting.</p>
+        </article>
+        <article>
+          <h2>*Princess*</h2>
+          <time>December 27, 2012</time>
+          <p>I love the everything by the branding. This mock panel mirrors your p.2 style.</p>
+        </article>
+      </section>
+    </main>
+  </body>
+</html>

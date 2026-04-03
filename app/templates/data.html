@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Comment Data</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+  </head>
+  <body class="data-page-body">
+    <main class="data-wrap">
+      <header class="top-nav">
+        <h1>Comment Data</h1>
+        <nav>
+          <a href="{{ url_for('index') }}">Home</a>
+          <a href="{{ url_for('add_comment_page') }}">Add Comment</a>
+          <a href="{{ url_for('comments_api') }}">JSON API</a>
+        </nav>
+      </header>
+
+      <section class="card-soft data-table-wrap">
+        <div class="reaction-summary">
+          <span class="thumb-pill"><span aria-hidden="true">&#128077;</span> Likes: <strong>{{ reactions.likes }}</strong></span>
+          <span class="thumb-pill"><span aria-hidden="true">&#128078;</span> Dislikes: <strong>{{ reactions.dislikes }}</strong></span>
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Name</th>
+              <th>Comment</th>
+              <th>Created At</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for msg in messages %}
+              <tr>
+                <td>{{ msg[0] }}</td>
+                <td>{{ msg[1] }}</td>
+                <td>{{ msg[2] }}</td>
+                <td>{{ msg[3].strftime('%Y-%m-%d %H:%M:%S') }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% if not messages %}
+          <p class="empty">No data yet.</p>
+        {% endif %}
+      </section>
+    </main>
+  </body>
+</html>

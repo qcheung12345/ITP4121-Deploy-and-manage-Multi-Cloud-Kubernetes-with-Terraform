@@ -1,0 +1,16 @@
+CREATE TABLE IF NOT EXISTS messages (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    content TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS reactions (
+    id INTEGER PRIMARY KEY,
+    likes INTEGER NOT NULL DEFAULT 0,
+    dislikes INTEGER NOT NULL DEFAULT 0
+);
+
+INSERT INTO reactions (id, likes, dislikes)
+VALUES (1, 0, 0)
+ON CONFLICT (id) DO NOTHING;

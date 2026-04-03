@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Comments Board</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+  </head>
+  <body class="board-body">
+    <main class="board-wrap">
+      <header class="top-nav">
+        <h1>{{ comment_count }} COMMENTS</h1>
+        <nav>
+          <a href="{{ url_for('index') }}" class="active">Home</a>
+          <a href="{{ url_for('add_comment_page') }}">Add Comment</a>
+          <a href="{{ url_for('data_page') }}">Data</a>
+        </nav>
+      </header>
+
+      <section class="hero-panel">
+        <div class="avatars">
+          {% if commenters %}
+            {% for name in commenters %}
+              <span class="avatar">{{ name[0]|upper }}</span>
+            {% endfor %}
+          {% else %}
+            <span class="avatar">?</span>
+          {% endif %}
+        </div>
+        <div class="hero-question">What do you think of this article?</div>
+        <div class="hero-actions">
+          <button type="button" id="likeBtn" class="icon-btn">Like</button>
+          <button type="button" id="dislikeBtn" class="icon-btn">Dislike</button>
+        </div>
+        <div class="reaction-strip" aria-live="polite">
+          <span class="thumb-pill"><span aria-hidden="true">&#128077;</span> <strong id="likeCount">{{ likes }}</strong></span>
+          <span class="thumb-pill"><span aria-hidden="true">&#128078;</span> <strong id="dislikeCount">{{ dislikes }}</strong></span>
+          <span id="heartBadge" class="heart-badge">&#10084; Thanks for your like</span>
+        </div>
+      </section>
+
+      <section class="feed card-soft">
+        <div class="feed-head">
+          <span>Sort by Trending</span>
+          <a href="{{ url_for('add_comment_page') }}" class="pill-link">Write a comment</a>
+        </div>
+
+        <a href="{{ url_for('add_comment_page') }}" class="fake-input">Share your opinion...</a>
+
+        {% if messages %}
+          <ul class="comment-list">
+            {% for msg in messages %}
+              <li class="comment-item">
+                <div class="comment-avatar">{{ msg[1][0]|upper }}</div>
+                <div class="comment-body">
+                  <div class="meta">
+                    <strong>@{{ msg[1] }}</strong>
+                    <span>{{ msg[3].strftime('%Y-%m-%d %H:%M') }}</span>
+                  </div>
+                  <p>{{ msg[2] }}</p>
+                </div>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="empty">No comments yet. Add the first one.</p>
+        {% endif %}
+      </section>
+    </main>
+
+    <script>
+      const likeBtn = document.getElementById("likeBtn");
+      const dislikeBtn = document.getElementById("dislikeBtn");
+      const likeCount = document.getElementById("likeCount");
+      const dislikeCount = document.getElementById("dislikeCount");
+      const heartBadge = document.getElementById("heartBadge");
+
+      async function sendReaction(action) {
+        const response = await fetch(`/api/reactions/${action}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+        });
+        if (!response.ok) {
+          throw new Error("Reaction update failed");
+        }
+        return response.json();
+      }
+
+      likeBtn.addEventListener("click", async () => {
+        try {
+          const data = await sendReaction("like");
+          likeCount.textContent = data.likes;
+          dislikeCount.textContent = data.dislikes;
+          heartBadge.classList.add("show");
+          likeBtn.classList.add("active-heart");
+          setTimeout(() => {
+            heartBadge.classList.remove("show");
+          }, 1400);
+        } catch (error) {
+          console.error(error);
+        }
+      });
+
+      dislikeBtn.addEventListener("click", async () => {
+        try {
+          const data = await sendReaction("dislike");
+          likeCount.textContent = data.likes;
+          dislikeCount.textContent = data.dislikes;
+        } catch (error) {
+          console.error(error);
+        }
+        window.location.href = "{{ url_for('add_comment_page') }}";
+      });
+    </script>
+  </body>
+</html>
