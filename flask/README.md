@@ -17,6 +17,7 @@ flask/
 │       ├── index.html          # 主頁面
 │       ├── add_comment.html    # 新增留言頁
 │       └── data.html           # 資料頁
+├── k8s/                        # Kubernetes manifests
 ├── Dockerfile                  # Docker 設定
 ├── docker-compose.yml          # 多容器啟動設定
 └── README.md                   # 說明文檔
@@ -60,3 +61,15 @@ flask/
 
 - The web app creates the `messages` table automatically on startup.
 - `app/init.sql` is mounted to PostgreSQL init directory for first-time DB setup.
+
+## Kubernetes Deployment
+
+The `k8s/` folder contains a deployable baseline for a Kubernetes setup:
+
+- `namespace.yaml` creates an isolated namespace.
+- `config.yaml` holds non-sensitive settings and example secret values.
+- `database.yaml` deploys PostgreSQL as a StatefulSet with persistent storage.
+- `web.yaml` deploys the Flask app with readiness, liveness, and HPA.
+- `ingress.yaml` exposes the app through an ingress controller with TLS.
+
+Update the placeholder values in the secret manifest before applying it to a real cluster.

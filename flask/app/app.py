@@ -1,3 +1,4 @@
+import logging
 import os
 import time
 from contextlib import closing
@@ -7,14 +8,30 @@ from flask import Flask, jsonify, redirect, render_template, request, url_for
 
 app = Flask(__name__)
 
-DATABASE_URL = os.getenv(
-    "DATABASE_URL",
-    "postgresql://app_user:app_password@db:5432/app_db",
+logging.basicConfig(
+    level=os.getenv("LOG_LEVEL", "INFO").upper(),
+    format="%(asctime)s %(levelname)s %(name)s %(message)s",
 )
+app.logger.setLevel(os.getenv("LOG_LEVEL", "INFO").upper())
+
+
+def get_connection_kwargs():
+    database_url = os.getenv("DATABASE_URL")
+    if database_url:
+        return {"dsn": database_url}
+
+    return {
+        "host": os.getenv("DATABASE_HOST", "db"),
+        "port": int(os.getenv("DATABASE_PORT", "5432")),
+        "dbname": os.getenv("DATABASE_NAME", "app_db"),
+        "user": os.getenv("DATABASE_USER", "app_user"),
+        "password": os.getenv("DATABASE_PASSWORD", "app_password"),
+        "connect_timeout": int(os.getenv("DATABASE_CONNECT_TIMEOUT", "5")),
+    }
 
 
 def get_connection():
-    return psycopg2.connect(DATABASE_URL)
+    return psycopg2.connect(**get_connection_kwargs())
 
 
 def fetch_messages(limit=None):
@@ -65,6 +82,9 @@ def fetch_reactions():
 
 
 def increment_reaction(column_name):
+    if column_name not in {"likes", "dislikes"}:
+        raise ValueError(f"Unsupported reaction column: {column_name}")
+
     with closing(get_connection()) as conn:
         with conn, conn.cursor() as cur:
             cur.execute(
@@ -111,11 +131,28 @@ def init_db(max_retries=15, delay_seconds=2):
                         ON CONFLICT (id) DO NOTHING;
                         """
                     )
+                    app.logger.info("Database schema ensured")
             return
         except psycopg2.OperationalError:
             if attempt == max_retries:
                 raise
             time.sleep(delay_seconds)
+
+
+def is_database_ready():
+    try:
+        with closing(get_connection()) as conn:
+            with conn, conn.cursor() as cur:
+                cur.execute("SELECT 1;")
+                cur.fetchone()
+        return True
+    except psycopg2.Error:
+        app.logger.exception("Database readiness check failed")
+        return False
+
+
+if os.getenv("AUTO_INIT_DB", "true").lower() in {"1", "true", "yes"}:
+    init_db()
 
 
 @app.route("/", methods=["GET"])
@@ -303,9 +340,16 @@ def update_reaction_api(action):
 
 @app.route("/healthz", methods=["GET"])
 def healthz():
-    return {"status": "ok"}, 200
+    return jsonify({"status": "ok"}), 200
+
+
+@app.route("/readyz", methods=["GET"])
+def readyz():
+    if is_database_ready():
+        return jsonify({"status": "ready"}), 200
+    return jsonify({"status": "not ready"}), 503
 
 
 if __name__ == "__main__":
-    init_db()
+    app.logger.info("Starting application")
     app.run(host="0.0.0.0", port=5000)
