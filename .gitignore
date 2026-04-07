@@ -1,0 +1,16 @@
+# Terraform local data and downloaded providers
+.terraform/
+*.tfstate
+*.tfstate.*
+.terraform.lock.hcl
+
+# Local variable overrides
+terraform.tfvars
+*.auto.tfvars
+
+# Crash logs and override files
+crash.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
