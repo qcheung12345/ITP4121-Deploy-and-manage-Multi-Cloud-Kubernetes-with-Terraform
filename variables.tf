@@ -11,6 +11,12 @@ variable "azure_subscription_id" {
   nullable    = true
 }
 
+variable "enable_azure" {
+  type        = bool
+  description = "Set to true to deploy the Azure stack."
+  default     = false
+}
+
 variable "azure_location" {
   type        = string
   description = "Azure region for AKS resources."
@@ -60,6 +66,18 @@ variable "gcp_project_id" {
   description = "GCP project ID used for GKE resources."
   default     = null
   nullable    = true
+}
+
+variable "gcp_access_token" {
+  type        = string
+  description = "Optional GCP access token. Override it only when enable_gcp is true."
+  default     = "disabled"
+}
+
+variable "enable_gcp" {
+  type        = bool
+  description = "Set to true to deploy the GCP stack."
+  default     = false
 }
 
 variable "gcp_region" {

@@ -1,4 +1,5 @@
 resource "google_compute_instance" "terraform" {
+  count        = var.enable_gcp ? 1 : 0
   project      = "itp4121-terraform-492511"
   name         = "terraform"
   machine_type = "n1-standard-1"

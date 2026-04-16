@@ -1,6 +1,7 @@
 project_name = "itp4121-multicloud-k8s"
 
 # Azure
+enable_azure            = false
 azure_subscription_id   = "<your-azure-subscription-id>"
 azure_location          = "eastasia"
 azure_resource_group_name = "itp4121-azure-rg"
@@ -8,6 +9,9 @@ azure_node_count        = 2
 azure_node_vm_size      = "Standard_DS2_v2"
 
 # GCP
+# Set enable_gcp = true only if you have GCP credentials configured.
+enable_gcp              = false
+gcp_access_token         = "disabled"
 gcp_project_id          = "<your-gcp-project-id>"
 gcp_region              = "asia-east2"
 gcp_zone                = "asia-east2-a"

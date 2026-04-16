@@ -20,14 +20,17 @@ locals {
 provider "azurerm" {
   features {}
   subscription_id = var.azure_subscription_id
+  resource_provider_registrations = "none"
 }
 
 provider "google" {
-  project = var.gcp_project_id
-  region  = var.gcp_region
+  project      = var.gcp_project_id
+  region       = var.gcp_region
+  access_token  = var.gcp_access_token
 }
 
 module "azure" {
+  count               = var.enable_azure ? 1 : 0
   source              = "./modules/azure"
   project_name        = local.project_name
   location            = var.azure_location
@@ -40,6 +43,7 @@ module "azure" {
 }
 
 module "gcp" {
+  count               = var.enable_gcp ? 1 : 0
   source             = "./modules/gcp"
   project_name       = local.project_name
   project_id         = var.gcp_project_id
