@@ -5,6 +5,8 @@ enable_azure            = false
 azure_subscription_id   = "<your-azure-subscription-id>"
 azure_location          = "eastasia"
 azure_resource_group_name = "itp4121-azure-rg"
+azure_aks_subnet_cidr   = "10.20.1.0/24"
+azure_aks_subnet_cidr2  = "10.20.2.0/24"
 azure_node_count        = 2
 azure_node_vm_size      = "Standard_DS2_v2"
 
@@ -15,5 +17,8 @@ gcp_access_token         = "disabled"
 gcp_project_id          = "<your-gcp-project-id>"
 gcp_region              = "asia-east2"
 gcp_zone                = "asia-east2-a"
+gcp_network_cidr        = "10.30.0.0/16"
+gcp_subnet_cidr         = "10.30.1.0/24"
+gcp_subnet_cidr2        = "10.30.2.0/24"
 gcp_node_count          = 2
 gcp_machine_type        = "e2-standard-2"
