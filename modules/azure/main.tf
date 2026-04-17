@@ -20,6 +20,10 @@ variable "aks_subnet_cidr" {
   type = string
 }
 
+variable "aks_subnet_cidr2" {
+  type = string
+}
+
 variable "node_count" {
   type = number
 }
@@ -38,6 +42,7 @@ locals {
   rg_name            = coalesce(var.resource_group_name, "${var.project_name}-azure-rg")
   vnet_name          = "${var.project_name}-azure-vnet"
   subnet_name        = "${var.project_name}-azure-aks-subnet"
+  subnet_name2       = "${var.project_name}-azure-aks-subnet-2"
   aks_name           = substr(replace("${var.project_name}-azure-aks", "_", "-"), 0, 63)
   log_analytics_name = substr(replace("${var.project_name}-la", "_", "-"), 0, 63)
 }
@@ -59,6 +64,13 @@ resource "azurerm_subnet" "aks" {
   resource_group_name  = azurerm_resource_group.this.name
   virtual_network_name = azurerm_virtual_network.this.name
   address_prefixes     = [var.aks_subnet_cidr]
+}
+
+resource "azurerm_subnet" "aks_secondary" {
+  name                 = local.subnet_name2
+  resource_group_name  = azurerm_resource_group.this.name
+  virtual_network_name = azurerm_virtual_network.this.name
+  address_prefixes     = [var.aks_subnet_cidr2]
 }
 
 resource "azurerm_log_analytics_workspace" "this" {
@@ -102,6 +114,18 @@ resource "azurerm_kubernetes_cluster" "this" {
   role_based_access_control_enabled = true
 }
 
+resource "azurerm_kubernetes_cluster_node_pool" "secondary" {
+  name                  = "secondary"
+  kubernetes_cluster_id = azurerm_kubernetes_cluster.this.id
+  vm_size               = var.node_vm_size
+  node_count            = 1
+  vnet_subnet_id        = azurerm_subnet.aks_secondary.id
+
+  auto_scaling_enabled = true
+  min_count            = 1
+  max_count            = 3
+}
+
 output "resource_group_name" {
   value = azurerm_resource_group.this.name
 }
@@ -116,4 +140,8 @@ output "subnet_id" {
 
 output "log_analytics_workspace_id" {
   value = azurerm_log_analytics_workspace.this.id
+}
+
+output "subnet_id_secondary" {
+  value = azurerm_subnet.aks_secondary.id
 }

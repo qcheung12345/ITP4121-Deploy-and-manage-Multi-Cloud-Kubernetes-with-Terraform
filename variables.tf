@@ -42,6 +42,12 @@ variable "azure_aks_subnet_cidr" {
   default     = "10.20.1.0/24"
 }
 
+variable "azure_aks_subnet_cidr2" {
+  type        = string
+  description = "CIDR block for a second AKS private subnet."
+  default     = "10.20.2.0/24"
+}
+
 variable "azure_node_count" {
   type        = number
   description = "AKS default node count."
@@ -102,6 +108,12 @@ variable "gcp_subnet_cidr" {
   type        = string
   description = "GCP subnet CIDR for GKE nodes."
   default     = "10.30.1.0/24"
+}
+
+variable "gcp_subnet_cidr2" {
+  type        = string
+  description = "Secondary GCP subnet CIDR for private resources."
+  default     = "10.30.2.0/24"
 }
 
 variable "gcp_node_count" {

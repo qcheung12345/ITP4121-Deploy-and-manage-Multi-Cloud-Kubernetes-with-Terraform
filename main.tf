@@ -54,6 +54,7 @@ module "azure" {
   resource_group_name = var.azure_resource_group_name
   vnet_cidr           = var.azure_vnet_cidr
   aks_subnet_cidr     = var.azure_aks_subnet_cidr
+  aks_subnet_cidr2    = var.azure_aks_subnet_cidr2
   node_count          = var.azure_node_count
   node_vm_size        = var.azure_node_vm_size
   kubernetes_version  = var.azure_kubernetes_version
@@ -68,6 +69,7 @@ module "gcp" {
   zone                     = var.gcp_zone
   network_cidr             = var.gcp_network_cidr
   subnet_cidr              = var.gcp_subnet_cidr
+  subnet_cidr2             = var.gcp_subnet_cidr2
   node_count               = var.gcp_node_count
   machine_type             = var.gcp_machine_type
   kubernetes_version       = var.gcp_kubernetes_version
