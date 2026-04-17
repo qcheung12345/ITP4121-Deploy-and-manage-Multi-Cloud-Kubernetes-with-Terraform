@@ -122,3 +122,84 @@ variable "gcp_kubernetes_version" {
   default     = null
   nullable    = true
 }
+
+variable "gcp_enable_managed_postgres" {
+  type        = bool
+  description = "Set to true to create Cloud SQL for PostgreSQL in GCP module."
+  default     = false
+}
+
+variable "gcp_postgres_version" {
+  type        = string
+  description = "Cloud SQL PostgreSQL major version."
+  default     = "POSTGRES_15"
+}
+
+variable "gcp_postgres_tier" {
+  type        = string
+  description = "Cloud SQL instance machine tier."
+  default     = "db-custom-1-3840"
+}
+
+variable "gcp_postgres_database_name" {
+  type        = string
+  description = "Cloud SQL database name used by guestbook app."
+  default     = "app_db"
+}
+
+variable "gcp_postgres_user_name" {
+  type        = string
+  description = "Cloud SQL database username for guestbook app."
+  default     = "app_user"
+}
+
+variable "gcp_postgres_authorized_cidr" {
+  type        = string
+  description = "CIDR allowed to access Cloud SQL public endpoint."
+  default     = "0.0.0.0/0"
+}
+
+variable "enable_k8s_secrets" {
+  type        = bool
+  description = "Set to true to create Kubernetes app and TLS secrets via Terraform."
+  default     = false
+}
+
+variable "kubeconfig_path" {
+  type        = string
+  description = "Path to kubeconfig used by Terraform Kubernetes provider."
+  default     = "~/.kube/config"
+}
+
+variable "kubeconfig_context" {
+  type        = string
+  description = "Optional kubeconfig context used by Terraform Kubernetes provider."
+  default     = null
+  nullable    = true
+}
+
+variable "k8s_namespace" {
+  type        = string
+  description = "Kubernetes namespace where guestbook app resources are deployed."
+  default     = "guestbook"
+}
+
+variable "app_database_url" {
+  type        = string
+  description = "Database URL injected into app secret as DATABASE_URL."
+  default     = "postgresql://app_user:change-me@postgres.guestbook.svc.cluster.local:5432/app_db"
+  sensitive   = true
+}
+
+variable "app_secret_key" {
+  type        = string
+  description = "Application secret key injected into app secret as SECRET_KEY."
+  default     = "change-me-before-prod"
+  sensitive   = true
+}
+
+variable "tls_common_name" {
+  type        = string
+  description = "Common name for self-signed TLS certificate."
+  default     = "guestbook.example.com"
+}

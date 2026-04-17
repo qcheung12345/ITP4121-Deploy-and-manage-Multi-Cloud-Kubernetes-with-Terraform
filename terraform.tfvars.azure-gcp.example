@@ -1,0 +1,37 @@
+project_name = "itp4121-multicloud-k8s"
+
+# Azure
+enable_azure              = true
+azure_subscription_id     = "<your-azure-subscription-id>"
+azure_location            = "eastasia"
+azure_resource_group_name = "itp4121-azure-rg"
+azure_node_count          = 2
+azure_node_vm_size        = "Standard_DS2_v2"
+
+# GCP
+enable_gcp                    = true
+gcp_access_token              = "<gcloud auth print-access-token>"
+gcp_project_id                = "<your-gcp-project-id>"
+gcp_region                    = "asia-east2"
+gcp_zone                      = "asia-east2-a"
+gcp_node_count                = 2
+gcp_machine_type              = "e2-standard-2"
+gcp_enable_managed_postgres   = true
+gcp_postgres_version          = "POSTGRES_15"
+gcp_postgres_tier             = "db-custom-1-3840"
+gcp_postgres_database_name    = "app_db"
+gcp_postgres_user_name        = "app_user"
+gcp_postgres_authorized_cidr  = "<your-public-ip-cidr>"
+
+# Kubernetes secret + TLS (Terraform managed)
+enable_k8s_secrets = true
+kubeconfig_path    = "~/.kube/config"
+# kubeconfig_context = "<your-context>"
+k8s_namespace      = "guestbook"
+
+# Ignored when gcp_enable_managed_postgres = true (will use Cloud SQL URL output)
+app_database_url = "postgresql://app_user:change-me@postgres.guestbook.svc.cluster.local:5432/app_db"
+
+# Change before real deployment
+app_secret_key  = "replace-with-strong-secret"
+tls_common_name = "guestbook.example.com"

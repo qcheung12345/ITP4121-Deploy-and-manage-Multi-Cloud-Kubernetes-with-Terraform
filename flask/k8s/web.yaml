@@ -22,6 +22,16 @@ spec:
           env:
             - name: AUTO_INIT_DB
               value: "true"
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: guestbook-app-secret
+                  key: DATABASE_URL
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: guestbook-app-secret
+                  key: SECRET_KEY
             - name: DATABASE_HOST
               valueFrom:
                 configMapKeyRef:
