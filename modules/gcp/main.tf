@@ -112,25 +112,24 @@ resource "google_container_cluster" "this" {
     resource_limits {
       resource_type = "cpu"
       minimum       = 1
-      maximum       = 10
+      maximum       = 2
     }
     resource_limits {
       resource_type = "memory"
       minimum       = 1
-      maximum       = 20
+      maximum       = 4
     }
   }
 }
 
 resource "google_container_node_pool" "primary" {
-  name       = "primary-node-pool"
-  location   = var.region
-  cluster    = google_container_cluster.this.name
-  node_count = var.node_count
+  name     = "primary-node-pool"
+  location = var.region
+  cluster  = google_container_cluster.this.name
 
   autoscaling {
     min_node_count = 1
-    max_node_count = 3
+    max_node_count = 2
   }
 
   node_config {

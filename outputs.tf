@@ -26,3 +26,11 @@ output "gcp_managed_database_url" {
   value     = var.enable_gcp ? module.gcp[0].managed_database_url : null
   sensitive = true
 }
+
+output "gcp_project_id" {
+  value = var.enable_gcp ? var.gcp_project_id : null
+}
+
+output "gcp_region" {
+  value = var.enable_gcp ? var.gcp_region : null
+}

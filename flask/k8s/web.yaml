@@ -93,7 +93,7 @@ spec:
   ports:
     - port: 80
       targetPort: 5000
-  type: ClusterIP
+  type: LoadBalancer
 ---
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler

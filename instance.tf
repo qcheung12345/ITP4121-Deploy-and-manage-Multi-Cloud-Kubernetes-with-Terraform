@@ -1,19 +1,23 @@
-resource "google_compute_instance" "terraform" {
-  count        = var.enable_gcp ? 1 : 0
-  project      = "itp4121-terraform-492511"
-  name         = "terraform"
-  machine_type = "n1-standard-1"
-  zone         = "us-central1-a"
-
-  boot_disk {
-    initialize_params {
-      image = "debian-cloud/debian-9"
-    }
-  }
-
-  network_interface {
-    network = "default"
-    access_config {
-    }
-  }
-}
+#
+# Disabled: This compute instance conflicts with GCP regional deployment.
+# The assignment uses GKE (Kubernetes) instead.
+#
+# resource "google_compute_instance" "terraform" {
+#   count        = var.enable_gcp ? 1 : 0
+#   project      = "itp4121-terraform-492511"
+#   name         = "terraform"
+#   machine_type = "n1-standard-1"
+#   zone         = "us-central1-a"
+#
+#   boot_disk {
+#     initialize_params {
+#       image = "debian-cloud/debian-9"
+#     }
+#   }
+#
+#   network_interface {
+#     network = "default"
+#     access_config {
+#     }
+#   }
+# }
