@@ -24,10 +24,6 @@ resource "azurerm_kubernetes_cluster" "this" {
     load_balancer_sku = "standard"
   }
 
-  oms_agent {
-    log_analytics_workspace_id = azurerm_log_analytics_workspace.this.id
-  }
-
   role_based_access_control_enabled = true
 }
 

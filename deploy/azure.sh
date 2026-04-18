@@ -5,9 +5,13 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TF_DIR="$SCRIPT_DIR/.."
 K8S_DIR="$SCRIPT_DIR/../flask/k8s"
 
+# Default region (can be overridden via command line)
+AZURE_LOCATION="${1:-westus}"
+
 echo "=============================================="
 echo "  Deploying Azure (AKS + Kubernetes Website + Database)"
 echo "=============================================="
+echo "Region: $AZURE_LOCATION"
 echo ""
 
 cd "$TF_DIR"
@@ -20,7 +24,8 @@ echo "[2/4] Terraform Apply..."
 terraform apply -auto-approve \
   -var="enable_azure=true" \
   -var="enable_gcp=false" \
-  -var="enable_k8s_secrets=false"
+  -var="enable_k8s_secrets=false" \
+  -var="azure_location=$AZURE_LOCATION"
 
 echo ""
 echo "[3/4] Terraform Outputs:"

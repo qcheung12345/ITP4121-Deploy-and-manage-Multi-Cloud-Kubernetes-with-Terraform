@@ -11,7 +11,7 @@ output "subnet_id" {
 }
 
 output "log_analytics_workspace_id" {
-  value = azurerm_log_analytics_workspace.this.id
+  value = length(azurerm_log_analytics_workspace.this) > 0 ? azurerm_log_analytics_workspace.this[0].id : null
 }
 
 output "subnet_id_secondary" {
