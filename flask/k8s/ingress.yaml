@@ -4,14 +4,16 @@ metadata:
   name: guestbook-web
   namespace: guestbook
   annotations:
-    kubernetes.io/ingress.class: gce
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80}]'
+    alb.ingress.kubernetes.io/healthcheck-path: /readyz
+    alb.ingress.kubernetes.io/ssl-redirect: 'false'
 spec:
-  tls:
-    - hosts:
-        - guestbook.example.com
-      secretName: guestbook-tls
+  ingressClassName: alb
   rules:
-    - host: guestbook.example.com
+    - host: quwm-guestbook-891377272715.com
       http:
         paths:
           - path: /

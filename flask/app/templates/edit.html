@@ -9,15 +9,29 @@
   </head>
   <body class="add-page-body">
     <main class="add-panel">
+      {% with messages = get_flashed_messages() %}
+        {% if messages %}
+          <div class="flash-stack">
+            {% for message in messages %}
+              <div class="flash-item">{{ message }}</div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+
       <header class="mini-nav">
         <a href="{{ url_for('index') }}">Home</a>
         <a href="{{ url_for('data_page') }}">Data</a>
+        <span class="user-badge">{{ current_user.username }}</span>
+        <form action="{{ url_for('logout') }}" method="post" class="inline-form">
+          <button type="submit" class="nav-btn">Sign Out</button>
+        </form>
       </header>
 
       <h1>Edit comment #{{ message[0] }}</h1>
       <form action="{{ url_for('update_message', message_id=message[0]) }}" method="post" class="add-form">
         <label for="name">Name</label>
-        <input id="name" name="name" type="text" maxlength="100" value="{{ message[1] }}" required />
+        <input id="name" name="name" type="text" maxlength="100" value="{{ current_user.username }}" readonly />
 
         <label for="content">Comment</label>
         <textarea id="content" name="content" rows="4" required>{{ message[2] }}</textarea>

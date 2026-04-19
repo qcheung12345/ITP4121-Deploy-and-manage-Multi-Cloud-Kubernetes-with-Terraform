@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Login</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+  </head>
+  <body class="add-page-body">
+    <main class="add-panel auth-panel">
+      {% with messages = get_flashed_messages() %}
+        {% if messages %}
+          <div class="flash-stack">
+            {% for message in messages %}
+              <div class="flash-item">{{ message }}</div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+
+      <header class="mini-nav">
+        <a href="{{ url_for('index') }}">Home</a>
+        <a href="{{ url_for('register_page') }}">Register</a>
+      </header>
+
+      <h1>Sign In</h1>
+      <form action="{{ url_for('login_page') }}" method="post" class="add-form">
+        <input type="hidden" name="next" value="{{ next or '' }}" />
+
+        <label for="username">Username</label>
+        <input id="username" name="username" type="text" maxlength="100" required />
+
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" minlength="6" required />
+
+        <button type="submit">Sign In</button>
+      </form>
+
+      <p class="auth-tip">No account? <a href="{{ url_for('register_page') }}">Create one here</a>.</p>
+    </main>
+  </body>
+</html>

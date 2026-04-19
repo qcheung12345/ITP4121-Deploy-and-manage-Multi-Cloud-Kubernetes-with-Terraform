@@ -24,6 +24,7 @@ services:
       - "5000:5000"
     environment:
       DATABASE_URL: postgresql://app_user:app_password@db:5432/app_db
+      SECRET_KEY: dev-secret-change-me
     depends_on:
       db:
         condition: service_healthy

@@ -12,6 +12,19 @@ data:
 apiVersion: v1
 kind: Secret
 metadata:
+  name: guestbook-app-secret
+  namespace: guestbook
+type: Opaque
+stringData:
+  # Required by login/session flow. Rotate in production.
+  SECRET_KEY: change-this-to-a-long-random-secret
+  # Prefer DATABASE_URL in production (for example, external RDS).
+  # For in-cluster postgres baseline, keep this URL aligned with config/secret above.
+  DATABASE_URL: postgresql://app_user:change-me@postgres:5432/app_db
+---
+apiVersion: v1
+kind: Secret
+metadata:
   name: guestbook-db-secret
   namespace: guestbook
 type: Opaque

@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Register</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+  </head>
+  <body class="add-page-body">
+    <main class="add-panel auth-panel">
+      {% with messages = get_flashed_messages() %}
+        {% if messages %}
+          <div class="flash-stack">
+            {% for message in messages %}
+              <div class="flash-item">{{ message }}</div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+
+      <header class="mini-nav">
+        <a href="{{ url_for('index') }}">Home</a>
+        <a href="{{ url_for('login_page') }}">Login</a>
+      </header>
+
+      <h1>Create Account</h1>
+      <form action="{{ url_for('register_page') }}" method="post" class="add-form">
+        <label for="username">Username</label>
+        <input id="username" name="username" type="text" maxlength="100" required />
+
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" minlength="6" required />
+
+        <label for="confirm_password">Confirm Password</label>
+        <input id="confirm_password" name="confirm_password" type="password" minlength="6" required />
+
+        <button type="submit">Register</button>
+      </form>
+
+      <p class="auth-tip">Already registered? <a href="{{ url_for('login_page') }}">Sign in</a>.</p>
+    </main>
+  </body>
+</html>

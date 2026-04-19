@@ -9,12 +9,35 @@
   </head>
   <body class="board-body">
     <main class="board-wrap">
+      {% with messages = get_flashed_messages() %}
+        {% if messages %}
+          <div class="flash-stack">
+            {% for message in messages %}
+              <div class="flash-item">{{ message }}</div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+
       <header class="top-nav">
         <h1>{{ comment_count }} COMMENTS</h1>
         <nav>
           <a href="{{ url_for('index') }}" class="active">Home</a>
-          <a href="{{ url_for('add_comment_page') }}">Add Comment</a>
+          {% if current_user.id %}
+            <a href="{{ url_for('add_comment_page') }}">Add Comment</a>
+          {% else %}
+            <a href="{{ url_for('login_page') }}">Add Comment</a>
+          {% endif %}
           <a href="{{ url_for('data_page') }}">Data</a>
+          {% if current_user.id %}
+            <span class="user-badge">{{ current_user.username }}</span>
+            <form action="{{ url_for('logout') }}" method="post" class="inline-form">
+              <button type="submit" class="nav-btn">Sign Out</button>
+            </form>
+          {% else %}
+            <a href="{{ url_for('login_page') }}">Login</a>
+            <a href="{{ url_for('register_page') }}">Register</a>
+          {% endif %}
         </nav>
       </header>
 
@@ -43,10 +66,18 @@
       <section class="feed card-soft">
         <div class="feed-head">
           <span>Sort by Trending</span>
-          <a href="{{ url_for('add_comment_page') }}" class="pill-link">Write a comment</a>
+          {% if current_user.id %}
+            <a href="{{ url_for('add_comment_page') }}" class="pill-link">Write a comment</a>
+          {% else %}
+            <a href="{{ url_for('login_page') }}" class="pill-link">Sign in to comment</a>
+          {% endif %}
         </div>
 
-        <a href="{{ url_for('add_comment_page') }}" class="fake-input">Share your opinion...</a>
+        {% if current_user.id %}
+          <a href="{{ url_for('add_comment_page') }}" class="fake-input">Share your opinion...</a>
+        {% else %}
+          <a href="{{ url_for('login_page') }}" class="fake-input">Sign in to share your opinion...</a>
+        {% endif %}
 
         {% if messages %}
           <ul class="comment-list">
