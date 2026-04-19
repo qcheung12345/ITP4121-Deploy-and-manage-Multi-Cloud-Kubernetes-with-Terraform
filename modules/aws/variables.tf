@@ -122,3 +122,15 @@ variable "tags" {
   type    = map(string)
   default = {}
 }
+
+variable "log_retention_days" {
+  type        = number
+  description = "CloudWatch log retention period in days"
+  default     = 30
+}
+
+variable "environment" {
+  type        = string
+  description = "Environment name (e.g., production, staging)"
+  default     = "production"
+}

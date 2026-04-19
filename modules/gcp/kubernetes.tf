@@ -29,3 +29,49 @@ resource "kubernetes_secret" "guestbook_tls" {
     "tls.key" = tls_private_key.guestbook_tls[0].private_key_pem
   }
 }
+
+# L7 Ingress for Google Cloud Load Balancer
+resource "kubernetes_ingress_v1" "guestbook_web" {
+  count = var.enable_k8s_secrets ? 1 : 0
+
+  metadata {
+    name      = "guestbook-web"
+    namespace = var.k8s_namespace
+    annotations = {
+      "kubernetes.io/ingress.class"                = "gce"
+      "kubernetes.io/ingress.global-static-ip-name" = "guestbook-ip"
+      "ingress.gcp.kubernetes.io/pre-shared-cert"  = "guestbook-ssl-cert"
+    }
+  }
+
+  spec {
+    ingress_class_name = "gce"
+
+    tls {
+      hosts       = ["guestbook.example.com"]
+      secret_name = kubernetes_secret.guestbook_tls[0].metadata[0].name
+    }
+
+    rule {
+      host = "guestbook.example.com"
+
+      http {
+        path {
+          path      = "/*"
+          path_type = "ImplementationSpecific"
+
+          backend {
+            service {
+              name = "guestbook-web-service"
+              port {
+                number = 80
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  depends_on = [kubernetes_secret.guestbook_tls]
+}

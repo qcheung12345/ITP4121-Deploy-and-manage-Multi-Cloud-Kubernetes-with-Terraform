@@ -131,3 +131,49 @@ resource "kubernetes_service" "guestbook_web" {
     type = "LoadBalancer"
   }
 }
+
+# L7 Ingress for AWS ALB
+resource "kubernetes_ingress_v1" "guestbook_web" {
+  count = var.enable_k8s_resources ? 1 : 0
+
+  metadata {
+    name      = "guestbook-web"
+    namespace = var.k8s_namespace
+    annotations = {
+      "kubernetes.io/ingress.class"              = "alb"
+      "alb.ingress.kubernetes.io/scheme"         = "internet-facing"
+      "alb.ingress.kubernetes.io/target-type"    = "ip"
+    }
+  }
+
+  spec {
+    ingress_class_name = "alb"
+
+    tls {
+      hosts       = ["guestbook.example.com"]
+      secret_name = try(kubernetes_secret.flask_tls_secret[0].metadata[0].name, "flask-tls-secret")
+    }
+
+    rule {
+      host = "guestbook.example.com"
+
+      http {
+        path {
+          path      = "/"
+          path_type = "Prefix"
+
+          backend {
+            service {
+              name = kubernetes_service.guestbook_web[0].metadata[0].name
+              port {
+                number = 80
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  depends_on = [kubernetes_secret.flask_tls_secret]
+}

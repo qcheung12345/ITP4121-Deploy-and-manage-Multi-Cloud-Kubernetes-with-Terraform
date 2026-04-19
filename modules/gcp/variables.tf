@@ -93,3 +93,27 @@ variable "app_secret_key" {
 variable "tls_common_name" {
   type = string
 }
+
+variable "gke_region" {
+  type        = string
+  description = "GCP region for GKE cluster"
+  default     = "us-central1"
+}
+
+variable "gke_cluster_name" {
+  type        = string
+  description = "GKE cluster name"
+  default     = "guestbook-gke"
+}
+
+variable "notification_channels" {
+  type        = list(string)
+  description = "Google Cloud notification channel IDs for alerts"
+  default     = []
+}
+
+variable "enable_notifications" {
+  type        = bool
+  description = "Enable alert notifications"
+  default     = false
+}
