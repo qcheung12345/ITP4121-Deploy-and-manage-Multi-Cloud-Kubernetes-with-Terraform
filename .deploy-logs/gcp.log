@@ -1,7 +1,0 @@
-==============================================
-  Deploying GCP (GKE + Kubernetes Website + Database)
-==============================================
-Region: us-central1
-Zone: us-central1-a
-
-Error: GCP project not set. Run 'gcloud config set project YOUR_PROJECT_ID'

@@ -14,3 +14,8 @@ override.tf
 override.tf.json
 *_override.tf
 *_override.tf.json
+
+# Deployment logs and downloaded tool archives
+.deploy-logs/
+awscliv2.zip
+terraform_1.9.7_linux_amd64.zip
