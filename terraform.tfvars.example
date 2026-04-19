@@ -10,6 +10,25 @@ azure_aks_subnet_cidr2  = "10.20.2.0/24"
 azure_node_count        = 2
 azure_node_vm_size      = "Standard_DS2_v2"
 
+# AWS
+enable_aws                = false
+aws_region                = "ap-east-1"
+aws_vpc_cidr              = "10.1.0.0/16"
+aws_public_subnet_cidrs   = ["10.1.1.0/24", "10.1.2.0/24"]
+aws_private_subnet_cidrs  = ["10.1.11.0/24", "10.1.12.0/24"]
+aws_kubernetes_version    = "1.30"
+aws_node_instance_type    = "t3.small"
+aws_node_min_size         = 1
+aws_node_desired_size     = 1
+aws_node_max_size         = 3
+aws_db_instance_class     = "db.t3.micro"
+aws_db_allocated_storage  = 20
+aws_db_name               = "app_db"
+aws_db_username           = "app_user"
+aws_route53_domain_name   = "guestbook.example.com"
+aws_enable_k8s_resources  = false
+# aws_tags = { environment = "assignment" }
+
 # GCP
 # Set enable_gcp = true only if you have GCP credentials configured.
 enable_gcp              = false
