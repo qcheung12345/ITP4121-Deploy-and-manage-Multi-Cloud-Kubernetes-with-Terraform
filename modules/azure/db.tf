@@ -1,0 +1,1 @@
+# Reserved for Azure database resources when managed DB is enabled for this module.

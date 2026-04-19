@@ -1,0 +1,1 @@
+# Reserved for Azure TLS/SSL resources when ingress certificate automation is enabled.

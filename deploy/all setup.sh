@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LOG_DIR="$SCRIPT_DIR/../.deploy-logs"
@@ -6,27 +7,27 @@ mkdir -p "$LOG_DIR"
 
 echo "############################################"
 echo "#   ITP4121 Multi-Cloud Deploy All         #"
-echo "#   Azure (AKS) + GCP (GKE)   #"
-echo "#   Running all 3 platforms in PARALLEL    #"
+echo "#   Azure (AKS) + GCP (GKE)               #"
+echo "#   Running both platforms in PARALLEL    #"
 echo "############################################"
 echo ""
 echo "Started at: $(date)"
 echo "Logs: $LOG_DIR"
 echo ""
 
-# ── Stage 1: Deploy 3 clouds in parallel ──────────────────────────────────────
+# ── Stage 1: Deploy Azure + GCP in parallel ───────────────────────────────────
 bash "$SCRIPT_DIR/deploy-azure.sh" > "$LOG_DIR/azure.log" 2>&1 & AZURE_PID=$!
-bash "$SCRIPT_DIR/deploy-gcp.sh"   > "$LOG_DIR/gcp.log"   2>&1 & GCP_PID=$!
+bash "$SCRIPT_DIR/gcp.sh"          > "$LOG_DIR/gcp.log"   2>&1 & GCP_PID=$!
 
 echo ">>> Azure deploying in background (PID $AZURE_PID) → $LOG_DIR/azure.log"
 echo ">>> GCP   deploying in background (PID $GCP_PID)   → $LOG_DIR/gcp.log"
 echo ""
 echo "Live tail — press Ctrl+C anytime (deployments keep running):"
-echo "  tail -f $LOG_DIR/aws.log $LOG_DIR/azure.log $LOG_DIR/gcp.log"
+echo "  tail -f $LOG_DIR/azure.log $LOG_DIR/gcp.log"
 echo ""
 
-# Stream all 3 logs merged to terminal
-tail -f "$LOG_DIR/aws.log" "$LOG_DIR/azure.log" "$LOG_DIR/gcp.log" &
+# Stream logs merged to terminal
+tail -f "$LOG_DIR/azure.log" "$LOG_DIR/gcp.log" &
 TAIL_PID=$!
 
 wait $AZURE_PID; AZURE_EXIT=$?
@@ -50,7 +51,7 @@ if [ $AZURE_EXIT -eq 0 ] && [ $GCP_EXIT -eq 0 ]; then
 
     GLOBAL_EXIT=1
     for attempt in 1 2 3 4; do
-        if bash "$SCRIPT_DIR/deploy-global.sh" > "$LOG_DIR/global.log" 2>&1; then
+        if bash "$SCRIPT_DIR/global.sh" > "$LOG_DIR/global.log" 2>&1; then
             GLOBAL_EXIT=0
             break
         fi

@@ -2,6 +2,7 @@ resource "azurerm_kubernetes_cluster" "this" {
   name                = local.aks_name
   location            = azurerm_resource_group.this.location
   resource_group_name = azurerm_resource_group.this.name
+  node_resource_group = substr(replace("${var.project_name}-aks-nrg", "_", "-"), 0, 80)
   dns_prefix          = substr(replace("${var.project_name}-dns", "_", "-"), 0, 54)
 
   kubernetes_version = var.kubernetes_version
