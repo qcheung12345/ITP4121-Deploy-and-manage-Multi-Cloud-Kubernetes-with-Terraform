@@ -1,59 +1,23 @@
-project_name = "itp4121-multicloud-k8s"
-
-# Azure
+# Azure deployment
 enable_azure            = false
 azure_subscription_id   = "<your-azure-subscription-id>"
-azure_location          = "eastasia"
 azure_resource_group_name = "itp4121-azure-rg"
-azure_aks_subnet_cidr   = "10.20.1.0/24"
-azure_aks_subnet_cidr2  = "10.20.2.0/24"
-azure_node_count        = 2
-azure_node_vm_size      = "Standard_DS2_v2"
 
-# AWS
+# AWS deployment
 enable_aws                = false
-aws_region                = "ap-east-1"
-aws_vpc_cidr              = "10.1.0.0/16"
-aws_public_subnet_cidrs   = ["10.1.1.0/24", "10.1.2.0/24"]
-aws_private_subnet_cidrs  = ["10.1.11.0/24", "10.1.12.0/24"]
-aws_kubernetes_version    = "1.30"
-aws_node_instance_type    = "t3.small"
-aws_node_min_size         = 1
-aws_node_desired_size     = 1
-aws_node_max_size         = 3
-aws_db_instance_class     = "db.t3.micro"
-aws_db_allocated_storage  = 20
-aws_db_name               = "app_db"
-aws_db_username           = "app_user"
-aws_route53_domain_name   = "guestbook.example.com"
-aws_enable_k8s_resources  = false
+# Optional: add common AWS resource tags.
 # aws_tags = { environment = "assignment" }
 
-# GCP
-# Set enable_gcp = true only if you have GCP credentials configured.
+# GCP deployment
+# Enable only after GCP credentials are configured.
 enable_gcp              = false
-gcp_access_token         = "disabled"
 gcp_project_id          = "<your-gcp-project-id>"
-gcp_region              = "asia-east2"
-gcp_zone                = "asia-east2-a"
-gcp_network_cidr        = "10.30.0.0/16"
-gcp_subnet_cidr         = "10.30.1.0/24"
-gcp_subnet_cidr2        = "10.30.2.0/24"
-gcp_node_count          = 2
-gcp_machine_type        = "e2-standard-2"
 gcp_enable_managed_postgres = false
-gcp_postgres_version    = "POSTGRES_15"
-gcp_postgres_tier       = "db-custom-1-3840"
-gcp_postgres_database_name = "app_db"
-gcp_postgres_user_name  = "app_user"
-gcp_postgres_authorized_cidr = "0.0.0.0/0"
+gcp_postgres_authorized_cidr = "<your-public-ip-cidr>"
 
-# Kubernetes secret + TLS (Terraform managed)
+# Kubernetes secrets and TLS (Terraform-managed)
 enable_k8s_secrets      = false
-kubeconfig_path         = "~/.kube/config"
+# Optional: set only when multiple kubeconfig contexts exist.
 # kubeconfig_context    = "your-context"
-k8s_namespace           = "guestbook"
-# If gcp_enable_managed_postgres=true, Terraform will override this value with the Cloud SQL URL.
-app_database_url        = "postgresql://app_user:change-me@postgres.guestbook.svc.cluster.local:5432/app_db"
-app_secret_key          = "change-me-before-prod"
-tls_common_name         = "guestbook.example.com"
+# Required before production deployment
+app_secret_key          = "replace-with-strong-secret"
