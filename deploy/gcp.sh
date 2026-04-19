@@ -2,7 +2,7 @@
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-TF_DIR="$SCRIPT_DIR/.."
+TF_DIR="$SCRIPT_DIR/../terraform/gcp"
 K8S_DIR="$SCRIPT_DIR/../flask/k8s"
 
 # Default region and zone (can be overridden via command line)
@@ -28,16 +28,18 @@ fi
 echo "[1/5] Terraform Init..."
 terraform init -upgrade
 
+# Use currently logged-in gcloud account for Terraform Google provider.
+gcp_access_token="$(gcloud auth print-access-token)"
+
 echo ""
 echo "[2/5] Terraform Apply..."
 terraform apply -auto-approve \
-  -var="enable_gcp=true" \
-  -var="enable_azure=false" \
+  -var="gcp_access_token=$gcp_access_token" \
   -var="enable_k8s_secrets=false" \
   -var="gcp_project_id=$gcp_project_id" \
   -var="gcp_region=$GCP_REGION" \
   -var="gcp_zone=$GCP_ZONE" \
-  -var="gcp_machine_type=f1-micro" \
+  -var="gcp_machine_type=e2-small" \
   -var="gcp_node_count=1"
 
 echo ""
@@ -48,30 +50,28 @@ echo ""
 echo "[4/5] Configuring kubectl..."
 cluster_name="$(terraform output -raw gcp_gke_cluster_name)"
 project_id="$(terraform output -raw gcp_project_id)"
-region="$(terraform output -raw gcp_region)"
-gcloud container clusters get-credentials "$cluster_name" --region "$region" --project "$project_id"
+gcloud container clusters get-credentials "$cluster_name" --zone "$GCP_ZONE" --project "$project_id"
+
+echo ""
+echo "Ensuring namespace exists before creating Kubernetes secrets..."
+kubectl apply -f "$K8S_DIR/namespace.yaml"
 
 echo ""
 echo "[5/5] Creating Kubernetes secrets via Terraform..."
 terraform apply -auto-approve \
-  -var="enable_gcp=true" \
-  -var="enable_azure=false" \
+  -var="gcp_access_token=$gcp_access_token" \
   -var="enable_k8s_secrets=true" \
   -var="gcp_project_id=$gcp_project_id" \
   -var="gcp_region=$GCP_REGION" \
   -var="gcp_zone=$GCP_ZONE" \
-  -var="gcp_machine_type=f1-micro" \
-  -var="gcp_node_count=1" \
-  -target=kubernetes_secret.guestbook_app_secret \
-  -target=kubernetes_secret.guestbook_tls
+  -var="gcp_machine_type=e2-small" \
+  -var="gcp_node_count=1"
 
 echo ""
 echo "Deploying Kubernetes manifests..."
-kubectl apply -f "$K8S_DIR/namespace.yaml"
 kubectl apply -f "$K8S_DIR/config.yaml"
 kubectl apply -f "$K8S_DIR/database.yaml"
 kubectl apply -f "$K8S_DIR/web.yaml"
 
 echo ""
-echo "GCP deployment complete."
 echo "GCP deployment complete."

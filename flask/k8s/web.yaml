@@ -4,7 +4,7 @@ metadata:
   name: guestbook-web
   namespace: guestbook
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: guestbook-web
@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: web
-          image: guestbook-web:latest
+          image: gcr.io/itp4121-terraform-492511/guestbook-web:latest
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 5000
@@ -76,11 +76,11 @@ spec:
             periodSeconds: 20
           resources:
             requests:
-              cpu: 100m
-              memory: 128Mi
+              cpu: 50m
+              memory: 96Mi
             limits:
-              cpu: 500m
-              memory: 256Mi
+              cpu: 300m
+              memory: 192Mi
 ---
 apiVersion: v1
 kind: Service
@@ -105,8 +105,8 @@ spec:
     apiVersion: apps/v1
     kind: Deployment
     name: guestbook-web
-  minReplicas: 2
-  maxReplicas: 5
+  minReplicas: 1
+  maxReplicas: 2
   metrics:
     - type: Resource
       resource:

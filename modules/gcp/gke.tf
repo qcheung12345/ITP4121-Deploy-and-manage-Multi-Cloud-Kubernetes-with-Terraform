@@ -1,6 +1,6 @@
 resource "google_container_cluster" "this" {
   name     = local.cluster_name
-  location = var.region
+  location = var.zone
 
   network    = google_compute_network.this.name
   subnetwork = google_compute_subnetwork.this.name
@@ -37,7 +37,7 @@ resource "google_container_cluster" "this" {
 
 resource "google_container_node_pool" "primary" {
   name     = "primary-node-pool"
-  location = var.region
+  location = var.zone
   cluster  = google_container_cluster.this.name
 
   autoscaling {
@@ -47,6 +47,8 @@ resource "google_container_node_pool" "primary" {
 
   node_config {
     machine_type = var.machine_type
+    disk_type    = "pd-standard"
+    disk_size_gb = 20
     oauth_scopes = [
       "https://www.googleapis.com/auth/cloud-platform",
     ]
