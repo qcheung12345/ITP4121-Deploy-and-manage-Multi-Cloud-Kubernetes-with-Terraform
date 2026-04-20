@@ -7,6 +7,19 @@ resource "azurerm_log_analytics_workspace" "this" {
   retention_in_days   = 30
 }
 
+locals {
+  actual_database_url = var.enable_managed_postgres ? format(
+    "postgresql://%s:%s@%s:5432/%s",
+    var.postgres_user_name,
+    random_password.postgres[0].result,
+    azurerm_postgresql_flexible_server.postgres[0].fqdn,
+    var.postgres_database_name,
+  ) : "postgresql://app_user:change-me@postgres.guestbook.svc.cluster.local:5432/app_db"
+
+  actual_database_user     = var.enable_managed_postgres ? var.postgres_user_name : "app_user"
+  actual_database_password = var.enable_managed_postgres ? random_password.postgres[0].result : "change-me"
+}
+
 # Kubernetes Secrets for database and application
 resource "kubernetes_secret" "guestbook_app_secret" {
   metadata {
@@ -17,7 +30,7 @@ resource "kubernetes_secret" "guestbook_app_secret" {
   type = "Opaque"
 
   data = {
-    DATABASE_URL = "postgresql://app_user:change-me@postgres.guestbook.svc.cluster.local:5432/app_db"
+    DATABASE_URL = local.actual_database_url
     SECRET_KEY   = "change-me-before-prod"
   }
 }
@@ -31,8 +44,8 @@ resource "kubernetes_secret" "guestbook_db_secret" {
   type = "Opaque"
 
   data = {
-    DATABASE_USER     = "app_user"
-    DATABASE_PASSWORD = "change-me"
+    DATABASE_USER     = local.actual_database_user
+    DATABASE_PASSWORD = local.actual_database_password
   }
 }
 

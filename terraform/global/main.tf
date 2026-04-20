@@ -24,37 +24,57 @@ data "aws_route53_zone" "primary" {
   # aws route53 create-hosted-zone --name example.com --caller-reference 1234567890
 }
 
-# Global FQDN with weighted routing records
-resource "aws_route53_record" "guestbook_global_weighted" {
-  for_each = {
-    aws   = { weight = 33, endpoint = var.aws_alb_endpoint }
-    azure = { weight = 33, endpoint = var.azure_lb_endpoint }
-    gcp   = { weight = 34, endpoint = var.gcp_lb_endpoint }
+locals {
+  azure_endpoint_is_ip = can(regex("^\\d+\\.\\d+\\.\\d+\\.\\d+$", var.azure_lb_endpoint))
+
+  weighted_endpoints = {
+    aws = {
+      weight          = 33
+      endpoint        = var.aws_alb_endpoint
+      record_type     = "CNAME"
+      health_check_id = aws_route53_health_check.aws_guestbook.id
+    }
+    azure = {
+      weight          = 33
+      endpoint        = var.azure_lb_endpoint
+      record_type     = local.azure_endpoint_is_ip ? "A" : "CNAME"
+      health_check_id = aws_route53_health_check.azure_guestbook.id
+    }
+    gcp = {
+      weight          = 34
+      endpoint        = var.gcp_lb_endpoint
+      record_type     = "CNAME"
+      health_check_id = aws_route53_health_check.gcp_guestbook.id
+    }
   }
+}
+
+resource "aws_route53_record" "guestbook_region" {
+  for_each = local.weighted_endpoints
 
   zone_id = data.aws_route53_zone.primary.zone_id
-  name    = each.key == "aws" ? "guestbook.${var.domain_name}" : "guestbook-${each.key}.${var.domain_name}"
-  type    = "CNAME"
+  name    = "guestbook-${each.key}.${var.domain_name}"
+  type    = each.value.record_type
   ttl     = var.route53_ttl
+  records = [each.value.endpoint]
+}
 
-  # Weighted routing policy
+resource "aws_route53_record" "guestbook_weighted" {
+  for_each = local.weighted_endpoints
+
+  zone_id        = data.aws_route53_zone.primary.zone_id
+  name           = "guestbook.${var.domain_name}"
+  type           = "A"
   set_identifier = each.key
+
   weighted_routing_policy {
     weight = each.value.weight
   }
 
-  records = [each.value.endpoint]
-}
-
-# Primary weighted alias (guestbook.example.com points to one of three clouds)
-resource "aws_route53_record" "guestbook_primary" {
-  zone_id = data.aws_route53_zone.primary.zone_id
-  name    = "guestbook.${var.domain_name}"
-  type    = "A"
-  ttl     = var.route53_ttl
+  health_check_id = each.value.health_check_id
 
   alias {
-    name                   = aws_route53_record.guestbook_global_weighted["aws"].fqdn
+    name                   = aws_route53_record.guestbook_region[each.key].fqdn
     zone_id                = data.aws_route53_zone.primary.zone_id
     evaluate_target_health = true
   }
@@ -76,7 +96,8 @@ resource "aws_route53_health_check" "aws_guestbook" {
 
 # Health check for Azure endpoint
 resource "aws_route53_health_check" "azure_guestbook" {
-  fqdn              = var.azure_lb_endpoint
+  fqdn              = local.azure_endpoint_is_ip ? null : var.azure_lb_endpoint
+  ip_address        = local.azure_endpoint_is_ip ? var.azure_lb_endpoint : null
   port              = 80
   type              = "HTTP"
   resource_path     = "/"

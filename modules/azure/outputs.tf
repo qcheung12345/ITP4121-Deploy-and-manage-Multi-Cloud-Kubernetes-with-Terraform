@@ -17,3 +17,17 @@ output "log_analytics_workspace_id" {
 output "subnet_id_secondary" {
   value = azurerm_subnet.aks_secondary.id
 }
+
+output "database_hostname" {
+  value = var.enable_managed_postgres ? azurerm_postgresql_flexible_server.postgres[0].fqdn : null
+}
+
+output "database_url" {
+  value = var.enable_managed_postgres ? format(
+    "postgresql://%s:%s@%s:5432/%s",
+    var.postgres_user_name,
+    random_password.postgres[0].result,
+    azurerm_postgresql_flexible_server.postgres[0].fqdn,
+    var.postgres_database_name,
+  ) : null
+}
