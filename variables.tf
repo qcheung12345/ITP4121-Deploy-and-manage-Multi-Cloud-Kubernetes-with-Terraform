@@ -160,7 +160,7 @@ variable "aws_route53_domain_name" {
 variable "aws_enable_k8s_resources" {
   type        = bool
   description = "Set to true to create Kubernetes resources from AWS module."
-  default     = false
+  default     = true
 }
 
 variable "aws_tags" {

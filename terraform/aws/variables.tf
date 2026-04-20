@@ -83,6 +83,11 @@ variable "aws_route53_domain_name" {
   default = "guestbook.example.com"
 }
 
+variable "aws_enable_k8s_resources" {
+  type    = bool
+  default = true
+}
+
 variable "k8s_namespace" {
   type    = string
   default = "guestbook"

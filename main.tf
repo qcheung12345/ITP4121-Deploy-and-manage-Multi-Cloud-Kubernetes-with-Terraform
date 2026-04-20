@@ -40,8 +40,8 @@ locals {
 
 provider "azurerm" {
   features {}
-  subscription_id                 = var.azure_subscription_id
-  resource_provider_registrations = "none"
+  subscription_id                 = var.azure_subscription_id != null ? var.azure_subscription_id : "00000000-0000-0000-0000-000000000000"
+  resource_provider_registrations = var.enable_azure ? "core" : "none"
 }
 
 provider "aws" {
@@ -49,7 +49,7 @@ provider "aws" {
 }
 
 provider "google" {
-  project = var.gcp_project_id
+  project = var.gcp_project_id != null ? var.gcp_project_id : "dummy-project"
   region  = var.gcp_region
 }
 

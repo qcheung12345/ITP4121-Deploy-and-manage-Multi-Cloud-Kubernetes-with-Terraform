@@ -36,7 +36,7 @@ module "aws" {
   db_username          = var.aws_db_username
 
   route53_domain_name  = var.aws_route53_domain_name
-  enable_k8s_resources = false
+  enable_k8s_resources = var.aws_enable_k8s_resources
   k8s_namespace        = var.k8s_namespace
   app_secret_key       = var.app_secret_key
   tls_common_name      = var.tls_common_name
