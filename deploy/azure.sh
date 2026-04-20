@@ -6,7 +6,7 @@ TF_DIR="$SCRIPT_DIR/../terraform/azure"
 K8S_DIR="$SCRIPT_DIR/../flask/k8s"
 
 # Default region (can be overridden via command line)
-AZURE_LOCATION="${1:-westus}"
+AZURE_LOCATION="${1:-South Africa North (southafricanorth)}"
 
 echo "=============================================="
 echo "  Deploying Azure (AKS + Kubernetes Website + Database)"
