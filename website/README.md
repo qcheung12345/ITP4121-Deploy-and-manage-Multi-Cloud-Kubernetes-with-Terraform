@@ -6,7 +6,7 @@ Both services run in Docker using `docker compose`.
 ## Structure
 
 ```text
-flask/
+website/
 ├── app/
 │   ├── app.py                  # 主應用文件
 │   ├── requirements.txt        # Python 依賴
@@ -40,7 +40,7 @@ flask/
 1. Build and start the containers:
 
 	```bash
-	cd flask
+	cd website
 	docker compose up --build
 	```
 
@@ -53,14 +53,14 @@ flask/
 3. Stop services:
 
 	```bash
-	cd flask
+	cd website
 	docker compose down
 	```
 
 4. Stop and remove all data (including DB volume):
 
 	```bash
-	cd flask
+	cd website
 	docker compose down -v
 	```
 
@@ -101,6 +101,6 @@ The `k8s/` folder contains a deployable baseline for a Kubernetes setup:
 Run the minimal route/API auth tests:
 
 ```bash
-cd flask
+cd website
 python -m pytest -q
 ```

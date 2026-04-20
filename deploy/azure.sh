@@ -3,7 +3,7 @@ set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TF_DIR="$SCRIPT_DIR/../terraform/azure"
-K8S_DIR="$SCRIPT_DIR/../flask/k8s"
+K8S_DIR="$SCRIPT_DIR/../website/k8s"
 
 # Default region (can be overridden via command line)
 AZURE_LOCATION="${1:-southafricanorth}"

@@ -21,7 +21,7 @@ This checklist maps the current implementation to an Azure + GCP deployment scop
 - Azure stack: modules/azure, terraform/azure
 - GCP stack: modules/gcp, terraform/gcp
 - Deployment scripts: deploy/all setup.sh, deploy/azure.sh, deploy/gcp.sh
-- App and manifests: flask/app, flask/k8s
+- App and manifests: website/app, website/k8s
 
 ## Remaining High-Impact Improvements
 1. Add explicit global traffic management service for cross-region failover.

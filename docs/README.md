@@ -15,5 +15,5 @@
 - [outputs.tf](../outputs.tf)
 - [modules/](../modules/)
 - [deploy/](../deploy/)
-- [flask/](../flask/)
+- [website/](../website/)
 - [terraform/](../terraform/)

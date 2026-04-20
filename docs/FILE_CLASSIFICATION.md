@@ -9,7 +9,7 @@
 - deploy/: cloud deployment and orchestration shell scripts
 
 ## Application
-- flask/: Flask app source, Docker assets, Kubernetes manifests, and tests
+- website/: Flask app source, Docker assets, Kubernetes manifests, and tests
 
 ## Configuration Examples
 - terraform.tfvars.example

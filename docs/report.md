@@ -67,20 +67,20 @@
 - 建立 node pool `google_container_node_pool`，並指定 `machine_type`、`oauth_scopes`。
 
 ### Kubernetes 應用部署
-- `flask/k8s/namespace.yaml`：建立 `guestbook` namespace。
-- `flask/k8s/config.yaml`：
+- `website/k8s/namespace.yaml`：建立 `guestbook` namespace。
+- `website/k8s/config.yaml`：
   - `ConfigMap` 提供 `DATABASE_HOST=postgres`、`DATABASE_PORT=5432`、`DATABASE_NAME=app_db`、`LOG_LEVEL=INFO`。
   - `Secret` 提供 `DATABASE_USER` 和 `DATABASE_PASSWORD`。
-- `flask/k8s/database.yaml`：
+- `website/k8s/database.yaml`：
   - `Service` 以 `clusterIP: None` 為 PostgreSQL StatefulSet 提供穩定內部 DNS。
   - `StatefulSet` 使用 `postgres:16-alpine` 映像。
   - 透過 `configMapKeyRef` 與 `secretKeyRef` 授權 PostgreSQL 環境變數。
-- `flask/k8s/web.yaml`：
+- `website/k8s/web.yaml`：
   - `Deployment` 建立兩個副本，使用 `guestbook-web:latest` 映像。
   - 設定 `readinessProbe` 與 `livenessProbe`。
   - `Service` 暴露 ClusterIP 80。
   - `HorizontalPodAutoscaler` 依 CPU 使用率 70% 在 2~5 副本間自動擴展。
-- `flask/k8s/ingress.yaml`：
+- `website/k8s/ingress.yaml`：
   - 指定 Ingress host `guestbook.example.com`。
   - 使用 `cert-manager` 進行 TLS 管理。
 
@@ -120,11 +120,11 @@
 - `outputs.tf`：輸出 AKS、GKE 叢集名稱與 GCP 網路名稱。
 - `modules/azure/main.tf`：Azure 基礎資源與 AKS 節點自動擴展。
 - `modules/gcp/main.tf`：GCP VPC、子網路、GKE 叢集與 node pool。
-- `flask/k8s/namespace.yaml`：建立命名空間。
-- `flask/k8s/config.yaml`：建立 ConfigMap 與 Secret。
-- `flask/k8s/database.yaml`：PostgreSQL Service 與 StatefulSet。
-- `flask/k8s/web.yaml`：Flask Deployment、Service、HPA。
-- `flask/k8s/ingress.yaml`：Ingress TLS 與路由。
+- `website/k8s/namespace.yaml`：建立命名空間。
+- `website/k8s/config.yaml`：建立 ConfigMap 與 Secret。
+- `website/k8s/database.yaml`：PostgreSQL Service 與 StatefulSet。
+- `website/k8s/web.yaml`：Flask Deployment、Service、HPA。
+- `website/k8s/ingress.yaml`：Ingress TLS 與路由。
 
 ## 部署步驟
 1. 建立或編輯 `terraform.tfvars`：
@@ -172,11 +172,11 @@ kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/
 5. 部署應用與資料庫：
 
 ```bash
-kubectl apply -f flask/k8s/namespace.yaml
-kubectl apply -f flask/k8s/config.yaml
-kubectl apply -f flask/k8s/database.yaml
-kubectl apply -f flask/k8s/web.yaml
-kubectl apply -f flask/k8s/ingress.yaml
+kubectl apply -f website/k8s/namespace.yaml
+kubectl apply -f website/k8s/config.yaml
+kubectl apply -f website/k8s/database.yaml
+kubectl apply -f website/k8s/web.yaml
+kubectl apply -f website/k8s/ingress.yaml
 ```
 
 6. 設定 DNS：
