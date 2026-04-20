@@ -22,6 +22,13 @@ resource "azurerm_postgresql_flexible_server" "postgres" {
   backup_retention_days         = var.postgres_backup_retention_days
   public_network_access_enabled = true
 
+  lifecycle {
+    ignore_changes = [
+      zone,
+      high_availability,
+    ]
+  }
+
   tags = {
     project = var.project_name
     env     = "azure"

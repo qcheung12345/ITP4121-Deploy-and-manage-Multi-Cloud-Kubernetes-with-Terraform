@@ -55,8 +55,10 @@ resource "azurerm_application_insights" "guestbook" {
   }
 }
 
-# Azure Monitor Alert Rule for AKS node availability
+# Azure Monitor metric alerts are disabled because these metrics are not available
+# in this AKS metric namespace and currently cause API 400 errors during apply.
 resource "azurerm_monitor_metric_alert" "aks_node_availability" {
+  count               = 0
   name                = "${local.aks_name}-node-availability"
   resource_group_name = azurerm_resource_group.this.name
   scopes              = [azurerm_kubernetes_cluster.this.id]
@@ -77,8 +79,8 @@ resource "azurerm_monitor_metric_alert" "aks_node_availability" {
   }
 }
 
-# Alert rule for failed pod deployments
 resource "azurerm_monitor_metric_alert" "failed_pod_deployments" {
+  count               = 0
   name                = "${local.aks_name}-failed-deployments"
   resource_group_name = azurerm_resource_group.this.name
   scopes              = [azurerm_kubernetes_cluster.this.id]

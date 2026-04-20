@@ -2,6 +2,7 @@
 # Part of 55-mark ITP4121 assignment: Cloud Logging (5 marks)
 
 resource "google_logging_project_sink" "gke_cluster_sink" {
+  count       = 0
   name        = "gke-${var.project_id}-cluster-sink"
   destination = "logging.googleapis.com/projects/${var.project_id}/logs"
 
@@ -14,6 +15,7 @@ resource "google_logging_project_sink" "gke_cluster_sink" {
 }
 
 resource "google_logging_project_sink" "gke_workload_sink" {
+  count       = 0
   name        = "gke-${var.project_id}-workload-sink"
   destination = "logging.googleapis.com/projects/${var.project_id}/logs"
 
@@ -69,6 +71,7 @@ resource "google_logging_metric" "pod_restart_count" {
 
 # Create monitoring alert policy for pod crashes
 resource "google_monitoring_alert_policy" "pod_crash_alert" {
+  count        = 0
   display_name = "${var.gke_cluster_name}-pod-crash-alert"
   combiner     = "OR"
   enabled      = true
@@ -89,10 +92,9 @@ resource "google_monitoring_alert_policy" "pod_crash_alert" {
     }
   }
 
-  # Make the policy conditional on having notification channels defined
   notification_channels = var.enable_notifications ? var.notification_channels : []
 
   alert_strategy {
-    auto_close = "604800s" # 7 days
+    auto_close = "604800s"
   }
 }
