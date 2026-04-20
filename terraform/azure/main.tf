@@ -31,6 +31,7 @@ module "azure" {
   node_count          = var.azure_node_count
   node_vm_size        = var.azure_node_vm_size
   kubernetes_version  = var.azure_kubernetes_version
+  enable_k8s_resources = var.enable_azure_k8s_resources
 }
 
 data "external" "guestbook_web_lb" {

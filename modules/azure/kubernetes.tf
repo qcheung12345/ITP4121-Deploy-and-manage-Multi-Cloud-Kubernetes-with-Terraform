@@ -22,6 +22,8 @@ locals {
 
 # Kubernetes Secrets for database and application
 resource "kubernetes_secret" "guestbook_app_secret" {
+  count = var.enable_k8s_resources ? 1 : 0
+
   metadata {
     name      = "guestbook-app-secret"
     namespace = "guestbook"
@@ -36,6 +38,8 @@ resource "kubernetes_secret" "guestbook_app_secret" {
 }
 
 resource "kubernetes_secret" "guestbook_db_secret" {
+  count = var.enable_k8s_resources ? 1 : 0
+
   metadata {
     name      = "guestbook-db-secret"
     namespace = "guestbook"
@@ -51,6 +55,8 @@ resource "kubernetes_secret" "guestbook_db_secret" {
 
 # Kubernetes Ingress for L7 routing with SSL/TLS
 resource "kubernetes_ingress_v1" "guestbook_web" {
+  count = var.enable_k8s_resources ? 1 : 0
+
   metadata {
     name      = "guestbook-web"
     namespace = "guestbook"
@@ -93,6 +99,8 @@ resource "kubernetes_ingress_v1" "guestbook_web" {
 
 # TLS Certificate Secret for Ingress
 resource "kubernetes_secret" "guestbook_tls" {
+  count = var.enable_k8s_resources ? 1 : 0
+
   metadata {
     name      = "guestbook-tls"
     namespace = "guestbook"
@@ -108,14 +116,14 @@ resource "kubernetes_secret" "guestbook_tls" {
 
 # TLS private key for self-signed certificate
 resource "tls_private_key" "guestbook_tls" {
-  count     = 1
+  count     = var.enable_k8s_resources ? 1 : 0
   algorithm = "RSA"
   rsa_bits  = 2048
 }
 
 # Self-signed certificate
 resource "tls_self_signed_cert" "guestbook_tls" {
-  count = 1
+  count = var.enable_k8s_resources ? 1 : 0
 
   private_key_pem       = tls_private_key.guestbook_tls[0].private_key_pem
   validity_period_hours = 8760

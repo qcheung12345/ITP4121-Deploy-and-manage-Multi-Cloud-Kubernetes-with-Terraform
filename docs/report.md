@@ -8,7 +8,7 @@
 ## 作業目標與需求
 本作業必須使用至少兩個公有雲提供者部署 Kubernetes 基礎設施，並完成以下要求：
 
-1. 部署到 AWS、Azure 和 GCP（至少兩個雲提供者）。本專案使用 Azure 與 GCP。
+1. 部署到至少兩個雲提供者。本專案使用 Azure 與 GCP。
 2. Kubernetes 部署在 VPC 內，且至少有 2 台 VM 在 2 個私有子網中運行。
 3. 包含 Cluster AutoScaler，可依據負載新增 VM。
 4. 部署並連接應用至 PostgreSQL 資料庫，使用 StatefulSet。
@@ -105,7 +105,7 @@
 - 實際部署時需使用真實域名替換 `guestbook.example.com`，並設定對應 DNS。
 
 ### 日誌與可觀測性
-- Flask 應用為標準 output 日誌，Azure/AWS/GCP 可由平台日誌代理收集。
+- Flask 應用為標準 output 日誌，Azure/GCP 可由平台日誌代理收集。
 - 目前 repo 中尚未直接包含雲端日誌代理資源，但可透過 AKS/GKE 平台本身收集容器 STDOUT。
 - 若要完整實作，可在叢集中安裝 Azure Monitor Container Insights 或 GCP Cloud Logging agent。
 

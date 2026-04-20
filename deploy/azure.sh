@@ -6,7 +6,7 @@ TF_DIR="$SCRIPT_DIR/../terraform/azure"
 K8S_DIR="$SCRIPT_DIR/../flask/k8s"
 
 # Default region (can be overridden via command line)
-AZURE_LOCATION="${1:-South Africa North (southafricanorth)}"
+AZURE_LOCATION="${1:-southafricanorth}"
 
 echo "=============================================="
 echo "  Deploying Azure (AKS + Kubernetes Website + Database)"
@@ -40,13 +40,23 @@ fi
 
 cd "$TF_DIR"
 
+RG_NAME_DEFAULT="itp4121-multicloud-k8s-azure-rg"
+RG_ID="/subscriptions/$azure_subscription_id/resourceGroups/$RG_NAME_DEFAULT"
+if az group show --name "$RG_NAME_DEFAULT" >/dev/null 2>&1; then
+  if ! terraform state show module.azure.azurerm_resource_group.this >/dev/null 2>&1; then
+    echo "Importing existing Azure resource group into Terraform state: $RG_NAME_DEFAULT"
+    terraform import module.azure.azurerm_resource_group.this "$RG_ID" >/dev/null 2>&1 || true
+  fi
+fi
+
 echo "[1/5] Terraform Init..."
 terraform init -upgrade
 
 echo ""
 echo "[2/5] Terraform Apply..."
 terraform apply -auto-approve \
-  -var="azure_location=$AZURE_LOCATION"
+  -var="azure_location=$AZURE_LOCATION" \
+  -var="enable_azure_k8s_resources=false"
 
 echo ""
 echo "[3/5] Terraform Outputs:"
@@ -61,9 +71,17 @@ az aks get-credentials --resource-group "$rg_name" --name "$cluster_name" --over
 kubectl apply -f "$K8S_DIR/namespace.yaml"
 kubectl apply -f "$K8S_DIR/config.yaml"
 kubectl apply -f "$K8S_DIR/database.yaml"
+azure_database_url="$(terraform output -raw azure_database_url)"
+db_user="$(echo "$azure_database_url" | sed -E 's#^postgresql://([^:]+):.*#\1#')"
+db_pass="$(echo "$azure_database_url" | sed -E 's#^postgresql://[^:]+:([^@]+)@.*#\1#')"
+
 kubectl create secret generic guestbook-app-secret \
-  --from-literal=DATABASE_URL="postgresql://app_user:change-me@postgres.guestbook.svc.cluster.local:5432/app_db" \
+  --from-literal=DATABASE_URL="$azure_database_url" \
   --from-literal=SECRET_KEY="change-me-before-prod" \
+  -n guestbook --dry-run=client -o yaml | kubectl apply -f -
+kubectl create secret generic guestbook-db-secret \
+  --from-literal=DATABASE_USER="$db_user" \
+  --from-literal=DATABASE_PASSWORD="$db_pass" \
   -n guestbook --dry-run=client -o yaml | kubectl apply -f -
 kubectl apply -f "$K8S_DIR/web.yaml"
 

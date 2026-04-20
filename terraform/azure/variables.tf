@@ -78,3 +78,9 @@ variable "web_service_name" {
   description = "Kubernetes service name for the website frontend."
   default     = "guestbook-web"
 }
+
+variable "enable_azure_k8s_resources" {
+  type        = bool
+  description = "Enable Terraform-managed Kubernetes resources in Azure module."
+  default     = false
+}

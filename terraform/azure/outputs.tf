@@ -29,3 +29,8 @@ output "flask_app_hostname" {
 output "flask_app_url" {
   value = local.flask_app_url
 }
+
+output "azure_database_url" {
+  value     = module.azure.database_url
+  sensitive = true
+}

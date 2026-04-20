@@ -77,22 +77,22 @@ The `k8s/` folder contains a deployable baseline for a Kubernetes setup:
 - `config.yaml` holds non-sensitive settings and secrets for app session + DB connection.
 - `database.yaml` deploys PostgreSQL as a StatefulSet with persistent storage.
 - `web.yaml` deploys the Flask app with readiness, liveness, and HPA.
-- `ingress.yaml` exposes the app through AWS ALB for the deployed Route53 domain.
+- `ingress.yaml` exposes the app through a Kubernetes ingress endpoint for the configured domain.
 
 ### Auth-aligned configuration notes
 
 - The login/register/sign-out flow depends on Flask session cookies, so `SECRET_KEY` must be set in `guestbook-app-secret`.
 - `DATABASE_URL` is now the primary DB connection input for the web app. Keep it consistent with your actual target DB.
 - For local baseline in this repo, `DATABASE_URL` points to in-cluster `postgres` service.
-- For AWS production, prefer external RDS by replacing `DATABASE_URL` with your RDS endpoint and credentials.
+- For production, prefer an external managed PostgreSQL service by replacing `DATABASE_URL` with your endpoint and credentials.
 - Keep `AUTO_INIT_DB=true` only if the app is allowed to auto-create tables at startup; otherwise set it to `false` and run migrations separately.
-- The AWS ingress manifest is wired to `quwm-guestbook-891377272715.com` and expects the AWS Load Balancer Controller to be installed in the cluster.
-- If you want HTTPS at the ALB layer, add an ACM certificate ARN to the ingress annotations and a Route53 alias that targets the generated ALB DNS name.
+- Set your own production domain in the ingress host rules and ensure the selected ingress controller is installed in the cluster.
+- For HTTPS, configure your certificate issuer and DNS record to point to the provisioned ingress endpoint.
 
 ### Kubernetes security recommendations (minimum)
 
 - Replace placeholder secrets before deploy and rotate them regularly.
-- Store secrets in a secret manager (for example AWS Secrets Manager + External Secrets) instead of plain manifest files.
+- Store secrets in a secret manager (for example Azure Key Vault or GCP Secret Manager with External Secrets) instead of plain manifest files.
 - Add `ingress` HTTPS redirect and secure cookie headers at ingress/controller layer.
 - Restrict who can read Kubernetes `Secret` objects with RBAC.
 

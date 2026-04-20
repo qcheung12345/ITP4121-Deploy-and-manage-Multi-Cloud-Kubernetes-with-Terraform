@@ -38,6 +38,12 @@ variable "kubernetes_version" {
   nullable = true
 }
 
+variable "enable_k8s_resources" {
+  type        = bool
+  description = "Enable Terraform-managed Kubernetes secrets and ingress resources."
+  default     = false
+}
+
 variable "enable_managed_postgres" {
   type        = bool
   description = "Enable Azure managed PostgreSQL Flexible Server."
@@ -53,7 +59,7 @@ variable "postgres_version" {
 variable "postgres_sku_name" {
   type        = string
   description = "Azure PostgreSQL Flexible Server SKU name."
-  default     = "Standard_B1ms"
+  default     = "B_Standard_B1ms"
 }
 
 variable "postgres_storage_mb" {

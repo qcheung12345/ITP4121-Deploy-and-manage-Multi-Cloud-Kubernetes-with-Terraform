@@ -3,11 +3,6 @@ enable_azure            = false
 azure_subscription_id   = "<your-azure-subscription-id>"
 azure_resource_group_name = "itp4121-azure-rg"
 
-# AWS deployment
-enable_aws                = false
-# Optional: add common AWS resource tags.
-# aws_tags = { environment = "assignment" }
-
 # GCP deployment
 # Enable only after GCP credentials are configured.
 enable_gcp              = false
