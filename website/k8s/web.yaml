@@ -13,20 +13,17 @@ spec:
       labels:
         app: guestbook-web
     spec:
+      imagePullSecrets:
+        - name: acr-auth
       containers:
         - name: web
-          image: gcr.io/itp4121-terraform-492511/guestbook-web:latest
+          image: itp4121multicloud.azurecr.io/guestbook-web:latest
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 5000
           env:
             - name: AUTO_INIT_DB
               value: "true"
-            - name: DATABASE_URL
-              valueFrom:
-                secretKeyRef:
-                  name: guestbook-app-secret
-                  key: DATABASE_URL
             - name: SECRET_KEY
               valueFrom:
                 secretKeyRef:
@@ -66,14 +63,18 @@ spec:
             httpGet:
               path: /readyz
               port: 5000
-            initialDelaySeconds: 10
+            initialDelaySeconds: 15
+            timeoutSeconds: 5
             periodSeconds: 10
+            failureThreshold: 3
           livenessProbe:
             httpGet:
               path: /healthz
               port: 5000
-            initialDelaySeconds: 20
+            initialDelaySeconds: 25
+            timeoutSeconds: 5
             periodSeconds: 20
+            failureThreshold: 3
           resources:
             requests:
               cpu: 50m

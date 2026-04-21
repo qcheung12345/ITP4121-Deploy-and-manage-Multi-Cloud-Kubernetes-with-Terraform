@@ -34,3 +34,12 @@ output "azure_database_url" {
   value     = module.azure.database_url
   sensitive = true
 }
+
+output "azure_database_user" {
+  value = module.azure.database_user
+}
+
+output "azure_database_password" {
+  value     = module.azure.database_password
+  sensitive = true
+}

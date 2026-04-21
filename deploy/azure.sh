@@ -172,12 +172,22 @@ az aks get-credentials --resource-group "$rg_name" --name "$cluster_name" --over
 kubectl apply -f "$K8S_DIR/namespace.yaml"
 kubectl apply -f "$K8S_DIR/config.yaml"
 kubectl apply -f "$K8S_DIR/database.yaml"
-azure_database_url="$(terraform output -raw azure_database_url)"
-db_user="$(echo "$azure_database_url" | sed -E 's#^postgresql://([^:]+):.*#\1#')"
-db_pass="$(echo "$azure_database_url" | sed -E 's#^postgresql://[^:]+:([^@]+)@.*#\1#')"
+acr_name="itp4121multicloud"
+az acr update -n "$acr_name" --admin-enabled true >/dev/null
+acr_login_server="$(az acr show -n "$acr_name" --query loginServer -o tsv)"
+acr_username="$(az acr credential show -n "$acr_name" --query username -o tsv)"
+acr_password="$(az acr credential show -n "$acr_name" --query passwords[0].value -o tsv)"
+
+kubectl create secret docker-registry acr-auth \
+  --docker-server="$acr_login_server" \
+  --docker-username="$acr_username" \
+  --docker-password="$acr_password" \
+  -n guestbook --dry-run=client -o yaml | kubectl apply -f -
+
+db_user="$(terraform output -raw azure_database_user)"
+db_pass="$(terraform output -raw azure_database_password)"
 
 kubectl create secret generic guestbook-app-secret \
-  --from-literal=DATABASE_URL="$azure_database_url" \
   --from-literal=SECRET_KEY="change-me-before-prod" \
   -n guestbook --dry-run=client -o yaml | kubectl apply -f -
 kubectl create secret generic guestbook-db-secret \

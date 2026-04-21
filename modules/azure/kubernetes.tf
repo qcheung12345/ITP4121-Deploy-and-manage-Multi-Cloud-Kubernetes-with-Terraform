@@ -11,7 +11,7 @@ locals {
   actual_database_url = var.enable_managed_postgres ? format(
     "postgresql://%s:%s@%s:5432/%s",
     var.postgres_user_name,
-    random_password.postgres[0].result,
+    replace(replace(replace(replace(random_password.postgres[0].result, "@", "%40"), "+", "%2B"), "(", "%28"), ")", "%29"),
     azurerm_postgresql_flexible_server.postgres[0].fqdn,
     var.postgres_database_name,
   ) : "postgresql://app_user:change-me@postgres.guestbook.svc.cluster.local:5432/app_db"

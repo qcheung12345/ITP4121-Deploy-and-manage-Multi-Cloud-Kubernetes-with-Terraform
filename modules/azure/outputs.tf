@@ -31,3 +31,12 @@ output "database_url" {
     var.postgres_database_name,
   ) : null
 }
+
+output "database_user" {
+  value = var.enable_managed_postgres ? var.postgres_user_name : null
+}
+
+output "database_password" {
+  value     = var.enable_managed_postgres ? random_password.postgres[0].result : null
+  sensitive = true
+}
