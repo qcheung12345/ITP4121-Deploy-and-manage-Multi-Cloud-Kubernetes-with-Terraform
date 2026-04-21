@@ -54,8 +54,10 @@ data "external" "guestbook_web_lb" {
         exit 0
       fi
 
-      IP="$(kubectl get svc "$SVC" -n "$NS" -o jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null || true)"
-      HOSTNAME="$(kubectl get svc "$SVC" -n "$NS" -o jsonpath='{.status.loadBalancer.ingress[0].hostname}' 2>/dev/null || true)"
+      INGRESS_IP="$(kubectl get ingress "$SVC" -n "$NS" -o jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null || true)"
+      INGRESS_HOSTNAME="$(kubectl get ingress "$SVC" -n "$NS" -o jsonpath='{.status.loadBalancer.ingress[0].hostname}' 2>/dev/null || true)"
+      IP="${INGRESS_IP:-$(kubectl get svc "$SVC" -n "$NS" -o jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null || true)}"
+      HOSTNAME="${INGRESS_HOSTNAME:-$(kubectl get svc "$SVC" -n "$NS" -o jsonpath='{.status.loadBalancer.ingress[0].hostname}' 2>/dev/null || true)}"
 
       STATUS="ready"
       if [ -z "$IP" ] && [ -z "$HOSTNAME" ]; then

@@ -60,7 +60,7 @@ PG_FW_ID="$PG_ID/firewallRules/allow-all"
 terraform_vars=(
   -var="azure_subscription_id=$azure_subscription_id"
   -var="azure_location=$AZURE_LOCATION"
-  -var="enable_azure_k8s_resources=false"
+  -var="enable_azure_k8s_resources=true"
 )
 
 terraform_import_vars=(
@@ -184,16 +184,6 @@ kubectl create secret docker-registry acr-auth \
   --docker-password="$acr_password" \
   -n guestbook --dry-run=client -o yaml | kubectl apply -f -
 
-db_user="$(terraform output -raw azure_database_user)"
-db_pass="$(terraform output -raw azure_database_password)"
-
-kubectl create secret generic guestbook-app-secret \
-  --from-literal=SECRET_KEY="change-me-before-prod" \
-  -n guestbook --dry-run=client -o yaml | kubectl apply -f -
-kubectl create secret generic guestbook-db-secret \
-  --from-literal=DATABASE_USER="$db_user" \
-  --from-literal=DATABASE_PASSWORD="$db_pass" \
-  -n guestbook --dry-run=client -o yaml | kubectl apply -f -
 kubectl apply -f "$K8S_DIR/web.yaml"
 
 echo ""

@@ -74,9 +74,9 @@ website/
 The `k8s/` folder contains a deployable baseline for a Kubernetes setup:
 
 - `namespace.yaml` creates an isolated namespace.
-- `config.yaml` holds non-sensitive settings and secrets for app session + DB connection.
+- `config.yaml` holds non-sensitive settings for the app.
 - `database.yaml` deploys PostgreSQL as a StatefulSet with persistent storage.
-- `web.yaml` deploys the Flask app with readiness, liveness, and HPA.
+- `web.yaml` deploys the Flask app with readiness, liveness, and HPA behind an internal ClusterIP service.
 - `ingress.yaml` exposes the app through a Kubernetes ingress endpoint for the configured domain.
 
 ### Auth-aligned configuration notes
@@ -85,6 +85,7 @@ The `k8s/` folder contains a deployable baseline for a Kubernetes setup:
 - `DATABASE_URL` is now the primary DB connection input for the web app. Keep it consistent with your actual target DB.
 - For local baseline in this repo, `DATABASE_URL` points to in-cluster `postgres` service.
 - For production, prefer an external managed PostgreSQL service by replacing `DATABASE_URL` with your endpoint and credentials.
+- The Kubernetes secrets are created by Terraform in the cloud deployments, so the placeholder secret blocks were removed from `config.yaml`.
 - Keep `AUTO_INIT_DB=true` only if the app is allowed to auto-create tables at startup; otherwise set it to `false` and run migrations separately.
 - Set your own production domain in the ingress host rules and ensure the selected ingress controller is installed in the cluster.
 - For HTTPS, configure your certificate issuer and DNS record to point to the provisioned ingress endpoint.

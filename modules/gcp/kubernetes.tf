@@ -14,6 +14,22 @@ resource "kubernetes_secret" "guestbook_app_secret" {
   }
 }
 
+resource "kubernetes_secret" "guestbook_db_secret" {
+  count = var.enable_k8s_secrets ? 1 : 0
+
+  metadata {
+    name      = "guestbook-db-secret"
+    namespace = var.k8s_namespace
+  }
+
+  type = "Opaque"
+
+  data = {
+    DATABASE_USER     = google_sql_user.app[0].name
+    DATABASE_PASSWORD = random_password.postgres[0].result
+  }
+}
+
 resource "kubernetes_secret" "guestbook_tls" {
   count = var.enable_k8s_secrets ? 1 : 0
 
@@ -62,7 +78,7 @@ resource "kubernetes_ingress_v1" "guestbook_web" {
 
           backend {
             service {
-              name = "guestbook-web-service"
+              name = "guestbook-web"
               port {
                 number = 80
               }

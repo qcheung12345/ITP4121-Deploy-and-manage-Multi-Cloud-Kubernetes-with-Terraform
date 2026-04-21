@@ -280,6 +280,33 @@ kubectl apply -f "$K8S_DIR/namespace.yaml"
 
 echo ""
 echo "[5/5] Creating Kubernetes secrets via Terraform..."
+# The shared web workload pulls from Azure Container Registry, so make the same
+# registry credentials available in GKE unless the caller already supplied them.
+ACR_NAME="${ACR_NAME:-itp4121multicloud}"
+ACR_LOGIN_SERVER="${ACR_LOGIN_SERVER:-}"
+ACR_USERNAME="${ACR_USERNAME:-}"
+ACR_PASSWORD="${ACR_PASSWORD:-}"
+
+if [ -z "$ACR_LOGIN_SERVER" ] || [ -z "$ACR_USERNAME" ] || [ -z "$ACR_PASSWORD" ]; then
+  if command -v az >/dev/null 2>&1 && az account show >/dev/null 2>&1; then
+    az acr update -n "$ACR_NAME" --admin-enabled true >/dev/null
+    ACR_LOGIN_SERVER="$(az acr show -n "$ACR_NAME" --query loginServer -o tsv)"
+    ACR_USERNAME="$(az acr credential show -n "$ACR_NAME" --query username -o tsv)"
+    ACR_PASSWORD="$(az acr credential show -n "$ACR_NAME" --query passwords[0].value -o tsv)"
+  fi
+fi
+
+if [ -n "$ACR_LOGIN_SERVER" ] && [ -n "$ACR_USERNAME" ] && [ -n "$ACR_PASSWORD" ]; then
+  kubectl create secret docker-registry acr-auth \
+    --docker-server="$ACR_LOGIN_SERVER" \
+    --docker-username="$ACR_USERNAME" \
+    --docker-password="$ACR_PASSWORD" \
+    -n guestbook --dry-run=client -o yaml | kubectl apply -f -
+else
+  echo "Error: acr-auth secret not created. Set ACR_LOGIN_SERVER, ACR_USERNAME, and ACR_PASSWORD or sign in with az so GKE can pull the shared image." >&2
+  exit 1
+fi
+
 # Import an existing ingress if the previous deployment already created it.
 if kubectl get ingress guestbook-web -n guestbook >/dev/null 2>&1; then
   if ! terraform state show module.gcp.kubernetes_ingress_v1.guestbook_web[0] >/dev/null 2>&1; then

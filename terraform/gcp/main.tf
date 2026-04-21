@@ -70,4 +70,6 @@ module "gcp" {
   effective_app_database_url = local.effective_app_database_url
   app_secret_key             = var.app_secret_key
   tls_common_name            = var.tls_common_name
+  gke_region                 = var.gcp_region
+  gke_cluster_name           = substr(replace("${var.project_name}-gke", "_", "-"), 0, 40)
 }

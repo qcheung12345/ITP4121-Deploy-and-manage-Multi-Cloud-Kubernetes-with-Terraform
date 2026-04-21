@@ -8,23 +8,3 @@ data:
   DATABASE_PORT: "5432"
   DATABASE_NAME: app_db
   LOG_LEVEL: INFO
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: guestbook-app-secret
-  namespace: guestbook
-type: Opaque
-stringData:
-  # Required by login/session flow. Rotate in production.
-  SECRET_KEY: change-this-to-a-long-random-secret
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: guestbook-db-secret
-  namespace: guestbook
-type: Opaque
-stringData:
-  DATABASE_USER: app_user
-  DATABASE_PASSWORD: change-me
