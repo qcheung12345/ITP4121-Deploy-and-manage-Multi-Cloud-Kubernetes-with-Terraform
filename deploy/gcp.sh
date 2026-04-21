@@ -252,10 +252,24 @@ if gcloud logging metrics describe pod_restart_count --project "$gcp_project_id"
 fi
 
 echo ""
+echo "[1.5/5] Configuring kubectl before Terraform apply..."
+gcloud container clusters get-credentials "$gcp_cluster_name" --zone "$GCP_ZONE" --project "$gcp_project_id"
+
+echo ""
+echo "Ensuring namespace exists before Terraform apply..."
+kubectl apply -f "$K8S_DIR/namespace.yaml"
+
+echo ""
+echo "Removing pre-existing secrets that Terraform manages..."
+kubectl -n guestbook delete secret guestbook-app-secret --ignore-not-found >/dev/null 2>&1 || true
+kubectl -n guestbook delete secret guestbook-db-secret --ignore-not-found >/dev/null 2>&1 || true
+kubectl -n guestbook delete secret guestbook-tls --ignore-not-found >/dev/null 2>&1 || true
+
+echo ""
 echo "[2/5] Terraform Apply..."
 terraform apply -auto-approve \
   -var="gcp_access_token=$gcp_access_token" \
-  -var="enable_k8s_secrets=false" \
+  -var="enable_k8s_secrets=true" \
   -var="gcp_enable_managed_postgres=true" \
   -var="gcp_project_id=$gcp_project_id" \
   -var="project_name=$gcp_project_name" \
@@ -273,10 +287,6 @@ echo "[4/5] Configuring kubectl..."
 cluster_name="$(terraform output -raw gcp_gke_cluster_name)"
 project_id="$(terraform output -raw gcp_project_id)"
 gcloud container clusters get-credentials "$cluster_name" --zone "$GCP_ZONE" --project "$project_id"
-
-echo ""
-echo "Ensuring namespace exists before creating Kubernetes secrets..."
-kubectl apply -f "$K8S_DIR/namespace.yaml"
 
 echo ""
 echo "[5/5] Creating Kubernetes secrets via Terraform..."
@@ -337,10 +347,6 @@ if kubectl get ingress guestbook-web -n guestbook >/dev/null 2>&1; then
     fi
   fi
 fi
-
-# Remove pre-existing secrets so Terraform can manage them cleanly.
-kubectl -n guestbook delete secret guestbook-app-secret --ignore-not-found >/dev/null 2>&1 || true
-kubectl -n guestbook delete secret guestbook-tls --ignore-not-found >/dev/null 2>&1 || true
 
 terraform apply -auto-approve \
   -var="gcp_access_token=$gcp_access_token" \

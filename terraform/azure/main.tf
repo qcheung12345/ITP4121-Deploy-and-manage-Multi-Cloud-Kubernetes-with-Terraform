@@ -6,6 +6,10 @@ terraform {
       source  = "hashicorp/azurerm"
       version = "~> 4.0"
     }
+    kubernetes = {
+      source  = "hashicorp/kubernetes"
+      version = "~> 2.0"
+    }
     external = {
       source  = "hashicorp/external"
       version = "~> 2.0"
@@ -17,6 +21,11 @@ provider "azurerm" {
   features {}
   subscription_id                 = var.azure_subscription_id
   resource_provider_registrations = "none"
+}
+
+provider "kubernetes" {
+  config_path    = fileexists(pathexpand(var.kubeconfig_path)) ? pathexpand(var.kubeconfig_path) : null
+  config_context = var.kubeconfig_context
 }
 
 module "azure" {
@@ -56,8 +65,8 @@ data "external" "guestbook_web_lb" {
 
       INGRESS_IP="$(kubectl get ingress "$SVC" -n "$NS" -o jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null || true)"
       INGRESS_HOSTNAME="$(kubectl get ingress "$SVC" -n "$NS" -o jsonpath='{.status.loadBalancer.ingress[0].hostname}' 2>/dev/null || true)"
-      IP="${INGRESS_IP:-$(kubectl get svc "$SVC" -n "$NS" -o jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null || true)}"
-      HOSTNAME="${INGRESS_HOSTNAME:-$(kubectl get svc "$SVC" -n "$NS" -o jsonpath='{.status.loadBalancer.ingress[0].hostname}' 2>/dev/null || true)}"
+      IP="$${INGRESS_IP:-$(kubectl get svc "$SVC" -n "$NS" -o jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null || true)}"
+      HOSTNAME="$${INGRESS_HOSTNAME:-$(kubectl get svc "$SVC" -n "$NS" -o jsonpath='{.status.loadBalancer.ingress[0].hostname}' 2>/dev/null || true)}"
 
       STATUS="ready"
       if [ -z "$IP" ] && [ -z "$HOSTNAME" ]; then

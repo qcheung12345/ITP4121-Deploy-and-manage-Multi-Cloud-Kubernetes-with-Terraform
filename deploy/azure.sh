@@ -156,6 +156,10 @@ import_if_exists \
   "az monitor log-analytics workspace show --resource-group '$RG_NAME_DEFAULT' --workspace-name '$LA_NAME_DEFAULT'"
 
 echo ""
+echo "[1.5/5] Configuring kubectl before Terraform apply..."
+az aks get-credentials --resource-group "$RG_NAME_DEFAULT" --name "$AKS_NAME_DEFAULT" --overwrite-existing
+
+echo ""
 echo "[2/5] Terraform Apply..."
 terraform apply -auto-approve "${terraform_vars[@]}"
 

@@ -61,6 +61,19 @@ variable "azure_kubernetes_version" {
   nullable    = true
 }
 
+variable "kubeconfig_path" {
+  type        = string
+  description = "Path to kubeconfig used by the Kubernetes provider."
+  default     = "~/.kube/config"
+}
+
+variable "kubeconfig_context" {
+  type        = string
+  description = "Optional kubeconfig context used by the Kubernetes provider."
+  default     = null
+  nullable    = true
+}
+
 variable "root_state_path" {
   type        = string
   description = "Deprecated. Kept for compatibility and not used by this stack."
