@@ -172,15 +172,82 @@ fi
 if gcloud sql users list --instance "$gcp_sql_instance_name" --project "$gcp_project_id" --format='value(name)' 2>/dev/null | grep -Fx "$gcp_sql_user_name" >/dev/null; then
   if ! terraform state show module.gcp.google_sql_user.app[0] >/dev/null 2>&1; then
     echo "Importing existing Cloud SQL user into Terraform state: $gcp_sql_user_name"
-    terraform import \
-      -var="gcp_access_token=$gcp_access_token" \
-      -var="gcp_enable_managed_postgres=true" \
-      -var="gcp_project_id=$gcp_project_id" \
-      -var="project_name=$gcp_project_name" \
-      -var="gcp_region=$GCP_REGION" \
-      -var="gcp_zone=$GCP_ZONE" \
-      module.gcp.google_sql_user.app[0] \
+    IMPORTED_SQL_USER=0
+    for import_id in \
+      "$gcp_project_id/$gcp_sql_instance_name/$gcp_sql_user_name" \
+      "projects/$gcp_project_id/instances/$gcp_sql_instance_name/users/$gcp_sql_user_name" \
+      "$gcp_sql_instance_name/$gcp_sql_user_name" \
+      "$gcp_sql_user_name/$gcp_sql_instance_name" \
       "$gcp_sql_user_name//$gcp_sql_instance_name"
+    do
+      if terraform import \
+        -var="gcp_access_token=$gcp_access_token" \
+        -var="gcp_enable_managed_postgres=true" \
+        -var="gcp_project_id=$gcp_project_id" \
+        -var="project_name=$gcp_project_name" \
+        -var="gcp_region=$GCP_REGION" \
+        -var="gcp_zone=$GCP_ZONE" \
+        module.gcp.google_sql_user.app[0] \
+        "$import_id"; then
+        IMPORTED_SQL_USER=1
+        break
+      fi
+    done
+
+    if [ "$IMPORTED_SQL_USER" -ne 1 ]; then
+      echo "Warning: could not import existing Cloud SQL user '$gcp_sql_user_name'."
+      echo "Terraform apply may fail if the user already exists unmanaged."
+    fi
+  fi
+fi
+
+if gcloud logging metrics describe pod_crash_count --project "$gcp_project_id" >/dev/null 2>&1; then
+  if ! terraform state show module.gcp.google_logging_metric.pod_crash_count >/dev/null 2>&1; then
+    echo "Importing existing GCP logging metric into Terraform state: pod_crash_count"
+    IMPORTED_CRASH_METRIC=0
+    for import_id in "projects/$gcp_project_id/metrics/pod_crash_count" "pod_crash_count"
+    do
+      if terraform import \
+        -var="gcp_access_token=$gcp_access_token" \
+        -var="gcp_enable_managed_postgres=true" \
+        -var="gcp_project_id=$gcp_project_id" \
+        -var="project_name=$gcp_project_name" \
+        -var="gcp_region=$GCP_REGION" \
+        -var="gcp_zone=$GCP_ZONE" \
+        module.gcp.google_logging_metric.pod_crash_count \
+        "$import_id"; then
+        IMPORTED_CRASH_METRIC=1
+        break
+      fi
+    done
+    if [ "$IMPORTED_CRASH_METRIC" -ne 1 ]; then
+      echo "Warning: could not import logging metric pod_crash_count."
+    fi
+  fi
+fi
+
+if gcloud logging metrics describe pod_restart_count --project "$gcp_project_id" >/dev/null 2>&1; then
+  if ! terraform state show module.gcp.google_logging_metric.pod_restart_count >/dev/null 2>&1; then
+    echo "Importing existing GCP logging metric into Terraform state: pod_restart_count"
+    IMPORTED_RESTART_METRIC=0
+    for import_id in "projects/$gcp_project_id/metrics/pod_restart_count" "pod_restart_count"
+    do
+      if terraform import \
+        -var="gcp_access_token=$gcp_access_token" \
+        -var="gcp_enable_managed_postgres=true" \
+        -var="gcp_project_id=$gcp_project_id" \
+        -var="project_name=$gcp_project_name" \
+        -var="gcp_region=$GCP_REGION" \
+        -var="gcp_zone=$GCP_ZONE" \
+        module.gcp.google_logging_metric.pod_restart_count \
+        "$import_id"; then
+        IMPORTED_RESTART_METRIC=1
+        break
+      fi
+    done
+    if [ "$IMPORTED_RESTART_METRIC" -ne 1 ]; then
+      echo "Warning: could not import logging metric pod_restart_count."
+    fi
   fi
 fi
 
@@ -213,6 +280,41 @@ kubectl apply -f "$K8S_DIR/namespace.yaml"
 
 echo ""
 echo "[5/5] Creating Kubernetes secrets via Terraform..."
+# Import an existing ingress if the previous deployment already created it.
+if kubectl get ingress guestbook-web -n guestbook >/dev/null 2>&1; then
+  if ! terraform state show module.gcp.kubernetes_ingress_v1.guestbook_web[0] >/dev/null 2>&1; then
+    echo "Importing existing GCP ingress into Terraform state: guestbook-web"
+    IMPORTED_INGRESS=0
+    for import_id in \
+      "guestbook/guestbook-web" \
+      "guestbook-web/guestbook" \
+      "guestbook-web"
+    do
+      if terraform import \
+        -var="gcp_access_token=$gcp_access_token" \
+        -var="gcp_enable_managed_postgres=true" \
+        -var="gcp_project_id=$gcp_project_id" \
+        -var="project_name=$gcp_project_name" \
+        -var="gcp_region=$GCP_REGION" \
+        -var="gcp_zone=$GCP_ZONE" \
+        -var="enable_k8s_secrets=true" \
+        module.gcp.kubernetes_ingress_v1.guestbook_web[0] \
+        "$import_id"; then
+        IMPORTED_INGRESS=1
+        break
+      fi
+    done
+    if [ "$IMPORTED_INGRESS" -ne 1 ]; then
+      echo "Warning: could not import existing GCP ingress guestbook-web."
+      echo "Terraform apply may fail if the ingress already exists unmanaged."
+    fi
+  fi
+fi
+
+# Remove pre-existing secrets so Terraform can manage them cleanly.
+kubectl -n guestbook delete secret guestbook-app-secret --ignore-not-found >/dev/null 2>&1 || true
+kubectl -n guestbook delete secret guestbook-tls --ignore-not-found >/dev/null 2>&1 || true
+
 terraform apply -auto-approve \
   -var="gcp_access_token=$gcp_access_token" \
   -var="enable_k8s_secrets=true" \

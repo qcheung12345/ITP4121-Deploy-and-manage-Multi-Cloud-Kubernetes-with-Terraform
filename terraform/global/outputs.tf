@@ -1,6 +1,6 @@
 output "guestbook_global_fqdn" {
-  description = "Weighted global guestbook record."
-  value       = "guestbook.${var.domain_name}"
+  description = "Azure Traffic Manager global DNS name."
+  value       = azurerm_traffic_manager_profile.guestbook.fqdn
 }
 
 output "weighted_routing_policy" {
@@ -10,14 +10,18 @@ output "weighted_routing_policy" {
   }
 }
 
-output "azure_health_check_id" {
-  value = aws_route53_health_check.azure_guestbook.id
+output "traffic_manager_profile_id" {
+  value = azurerm_traffic_manager_profile.guestbook.id
 }
 
-output "gcp_health_check_id" {
-  value = aws_route53_health_check.gcp_guestbook.id
+output "azure_endpoint_target" {
+  value = azurerm_traffic_manager_external_endpoint.azure_guestbook.target
+}
+
+output "gcp_endpoint_target" {
+  value = azurerm_traffic_manager_external_endpoint.gcp_guestbook.target
 }
 
 output "demo_dig_command" {
-  value = "dig +short guestbook.${var.domain_name}"
+  value = "dig +short ${azurerm_traffic_manager_profile.guestbook.fqdn}"
 }

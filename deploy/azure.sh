@@ -138,7 +138,12 @@ import_if_exists \
 import_if_exists \
   "module.azure.azurerm_postgresql_flexible_server_firewall_rule.allow_all[0]" \
   "$PG_FW_ID" \
-  "az postgres flexible-server firewall-rule show --resource-group '$RG_NAME_DEFAULT' --name 'allow-all' --server-name '$PG_NAME_DEFAULT'"
+  "az postgres flexible-server firewall-rule show --resource-group '$RG_NAME_DEFAULT' --name '$PG_NAME_DEFAULT' --rule-name 'allow-all'"
+
+import_if_exists \
+  "module.azure.azurerm_monitor_diagnostic_setting.aks_diagnostics" \
+  "$AKS_ID|${AKS_NAME_DEFAULT}-diagnostics" \
+  "az monitor diagnostic-settings show --resource '$AKS_ID' --name '${AKS_NAME_DEFAULT}-diagnostics'"
 
 import_if_exists \
   "module.azure.azurerm_log_analytics_saved_search.database_connectivity" \

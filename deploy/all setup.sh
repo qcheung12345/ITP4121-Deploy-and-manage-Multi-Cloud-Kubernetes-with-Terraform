@@ -44,9 +44,9 @@ echo "############################################"
 [ $GCP_EXIT   -eq 0 ] && echo "  GCP   : SUCCESS" || echo "  GCP   : FAILED (see $LOG_DIR/gcp.log)"
 echo ""
 
-# ── Stage 2: Global Route53 DNS (only if both clouds succeeded) ──────────────
+# ── Stage 2: Global Azure Traffic Manager DNS (if both clouds succeed) ───────
 if [ $AZURE_EXIT -eq 0 ] && [ $GCP_EXIT -eq 0 ]; then
-    echo ">>> Clouds succeeded — deploying global Route53 weighted DNS..."
+    echo ">>> Clouds succeeded — deploying global Azure Traffic Manager weighted DNS..."
     echo ""
 
     GLOBAL_EXIT=1
@@ -68,10 +68,10 @@ if [ $AZURE_EXIT -eq 0 ] && [ $GCP_EXIT -eq 0 ]; then
     echo "#   Stage 2 Summary (Global DNS)           #"
     echo "############################################"
     if [ $GLOBAL_EXIT -eq 0 ]; then
-        echo "  Route53 : SUCCESS"
+        echo "  Traffic Manager : SUCCESS"
         grep -E "^(guestbook_global_fqdn|weighted_routing_policy|demo_dig_command)" "$LOG_DIR/global.log" 2>/dev/null | sed 's/^/    /'
     else
-        echo "  Route53 : FAILED (see $LOG_DIR/global.log)"
+        echo "  Traffic Manager : FAILED (see $LOG_DIR/global.log)"
         tail -10 "$LOG_DIR/global.log" | sed 's/^/    /'
     fi
     echo ""
