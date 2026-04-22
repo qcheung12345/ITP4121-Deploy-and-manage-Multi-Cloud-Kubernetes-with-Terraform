@@ -11,6 +11,7 @@ resource "azurerm_kubernetes_cluster" "this" {
     name                 = "system"
     vm_size              = var.node_vm_size
     vnet_subnet_id       = azurerm_subnet.aks.id
+    enable_node_public_ip = var.aks_enable_node_public_ip
     auto_scaling_enabled = true
     min_count            = 1
     max_count            = 3
@@ -34,6 +35,7 @@ resource "azurerm_kubernetes_cluster_node_pool" "secondary" {
   vm_size               = var.node_vm_size
   node_count            = 1
   vnet_subnet_id        = azurerm_subnet.aks_secondary.id
+  enable_node_public_ip = var.aks_enable_node_public_ip
 
   auto_scaling_enabled = true
   min_count            = 1

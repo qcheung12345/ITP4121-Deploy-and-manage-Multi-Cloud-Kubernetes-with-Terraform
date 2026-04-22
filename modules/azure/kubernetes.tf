@@ -60,12 +60,12 @@ resource "kubernetes_ingress_v1" "guestbook_web" {
     ingress_class_name = "azure-application-gateway"
 
     tls {
-      hosts       = ["guestbook.example.com"]
+      hosts       = [var.tls_common_name]
       secret_name = "guestbook-tls"
     }
 
     rule {
-      host = "guestbook.example.com"
+      host = var.tls_common_name
 
       http {
         path {
@@ -103,30 +103,4 @@ resource "kubernetes_secret" "guestbook_tls" {
     "tls.crt" = tls_self_signed_cert.guestbook_tls[0].cert_pem
     "tls.key" = tls_private_key.guestbook_tls[0].private_key_pem
   }
-}
-
-# TLS private key for self-signed certificate
-resource "tls_private_key" "guestbook_tls" {
-  count     = var.enable_k8s_resources ? 1 : 0
-  algorithm = "RSA"
-  rsa_bits  = 2048
-}
-
-# Self-signed certificate
-resource "tls_self_signed_cert" "guestbook_tls" {
-  count = var.enable_k8s_resources ? 1 : 0
-
-  private_key_pem       = tls_private_key.guestbook_tls[0].private_key_pem
-  validity_period_hours = 8760
-
-  subject {
-    common_name  = "guestbook.example.com"
-    organization = "ITP4121"
-  }
-
-  allowed_uses = [
-    "key_encipherment",
-    "digital_signature",
-    "server_auth",
-  ]
 }

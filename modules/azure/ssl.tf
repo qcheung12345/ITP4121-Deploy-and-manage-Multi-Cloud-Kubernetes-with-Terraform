@@ -1,2 +1,25 @@
-# TLS/SSL resources for Azure Ingress
-# Note: Self-signed certificates are generated in kubernetes.tf alongside Ingress definition
+# TLS private key for self-signed certificate
+resource "tls_private_key" "guestbook_tls" {
+  count     = var.enable_k8s_resources ? 1 : 0
+  algorithm = "RSA"
+  rsa_bits  = 2048
+}
+
+# Self-signed certificate for the guestbook ingress host
+resource "tls_self_signed_cert" "guestbook_tls" {
+  count = var.enable_k8s_resources ? 1 : 0
+
+  private_key_pem       = tls_private_key.guestbook_tls[0].private_key_pem
+  validity_period_hours = 8760
+
+  subject {
+    common_name  = var.tls_common_name
+    organization = "ITP4121"
+  }
+
+  allowed_uses = [
+    "key_encipherment",
+    "digital_signature",
+    "server_auth",
+  ]
+}

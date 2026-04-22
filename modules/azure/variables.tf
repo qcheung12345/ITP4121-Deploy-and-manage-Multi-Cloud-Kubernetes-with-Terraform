@@ -38,10 +38,22 @@ variable "kubernetes_version" {
   nullable = true
 }
 
+variable "aks_enable_node_public_ip" {
+  type        = bool
+  description = "Enable public IP on AKS nodes. Keep false for private subnets."
+  default     = false
+}
+
 variable "enable_k8s_resources" {
   type        = bool
   description = "Enable Terraform-managed Kubernetes secrets and ingress resources."
   default     = false
+}
+
+variable "tls_common_name" {
+  type        = string
+  description = "Common name used by Azure ingress TLS certificate and host rule."
+  default     = "guestbook.example.com"
 }
 
 variable "enable_managed_postgres" {

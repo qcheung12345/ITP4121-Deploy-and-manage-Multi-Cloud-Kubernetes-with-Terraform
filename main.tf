@@ -28,6 +28,12 @@ terraform {
 locals {
   project_name = var.project_name
   gcp_cluster_name = substr(replace("${var.project_name}-gke", "_", "-"), 0, 40)
+  profile_is_prod = var.network_privacy_profile == "prod"
+
+  effective_azure_aks_enable_node_public_ip = coalesce(var.azure_aks_enable_node_public_ip, false)
+  effective_gcp_enable_private_nodes        = coalesce(var.gcp_enable_private_nodes, true)
+  effective_gcp_enable_private_endpoint     = coalesce(var.gcp_enable_private_endpoint, local.profile_is_prod)
+
   effective_app_database_url = (
     var.enable_gcp && var.gcp_enable_managed_postgres
     ? module.gcp[0].managed_database_url
@@ -63,6 +69,8 @@ module "azure" {
   node_count          = var.azure_node_count
   node_vm_size        = var.azure_node_vm_size
   kubernetes_version  = var.azure_kubernetes_version
+  aks_enable_node_public_ip = local.effective_azure_aks_enable_node_public_ip
+  tls_common_name     = var.tls_common_name
 }
 
 module "gcp" {
@@ -81,6 +89,9 @@ module "gcp" {
   node_count                 = var.gcp_node_count
   machine_type               = var.gcp_machine_type
   kubernetes_version         = var.gcp_kubernetes_version
+  gke_enable_private_nodes   = local.effective_gcp_enable_private_nodes
+  gke_enable_private_endpoint = local.effective_gcp_enable_private_endpoint
+  gke_master_ipv4_cidr_block = var.gcp_master_ipv4_cidr_block
   enable_managed_postgres    = var.gcp_enable_managed_postgres
   postgres_version           = var.gcp_postgres_version
   postgres_tier              = var.gcp_postgres_tier

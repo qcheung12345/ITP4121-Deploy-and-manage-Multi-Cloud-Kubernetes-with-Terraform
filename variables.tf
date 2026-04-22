@@ -4,6 +4,17 @@ variable "project_name" {
   default     = "itp4121-multicloud-k8s"
 }
 
+variable "network_privacy_profile" {
+  type        = string
+  description = "Network privacy profile. Use 'prod' for stricter private networking, or 'dev' for easier local operations."
+  default     = "prod"
+
+  validation {
+    condition     = contains(["dev", "prod"], var.network_privacy_profile)
+    error_message = "network_privacy_profile must be either 'dev' or 'prod'."
+  }
+}
+
 variable "azure_subscription_id" {
   type        = string
   description = "Azure subscription ID. Can be omitted when already logged in with az CLI."
@@ -63,6 +74,13 @@ variable "azure_node_vm_size" {
 variable "azure_kubernetes_version" {
   type        = string
   description = "Optional AKS Kubernetes version."
+  default     = null
+  nullable    = true
+}
+
+variable "azure_aks_enable_node_public_ip" {
+  type        = bool
+  description = "Optional override to enable public IP on AKS nodes. Set null to use network_privacy_profile default."
   default     = null
   nullable    = true
 }
@@ -133,6 +151,26 @@ variable "gcp_kubernetes_version" {
   description = "Optional GKE Kubernetes version."
   default     = null
   nullable    = true
+}
+
+variable "gcp_enable_private_nodes" {
+  type        = bool
+  description = "Optional override to enable private worker nodes for GKE. Set null to use network_privacy_profile default."
+  default     = null
+  nullable    = true
+}
+
+variable "gcp_enable_private_endpoint" {
+  type        = bool
+  description = "Optional override to enable private control plane endpoint for GKE. Set null to use network_privacy_profile default."
+  default     = null
+  nullable    = true
+}
+
+variable "gcp_master_ipv4_cidr_block" {
+  type        = string
+  description = "RFC1918 /28 CIDR range for GKE control plane endpoint in private clusters."
+  default     = "172.16.0.0/28"
 }
 
 variable "gcp_enable_managed_postgres" {

@@ -40,6 +40,24 @@ variable "kubernetes_version" {
   nullable = true
 }
 
+variable "gke_enable_private_nodes" {
+  type        = bool
+  description = "Enable private worker nodes for GKE."
+  default     = true
+}
+
+variable "gke_enable_private_endpoint" {
+  type        = bool
+  description = "Enable private control plane endpoint for GKE."
+  default     = true
+}
+
+variable "gke_master_ipv4_cidr_block" {
+  type        = string
+  description = "RFC1918 /28 CIDR range for GKE control plane endpoint in private clusters."
+  default     = "172.16.0.0/28"
+}
+
 variable "enable_managed_postgres" {
   type = bool
 }

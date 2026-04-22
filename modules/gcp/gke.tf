@@ -15,6 +15,13 @@ resource "google_container_cluster" "this" {
 
   ip_allocation_policy {}
 
+  private_cluster_config {
+    # Private worker nodes and private control-plane endpoint.
+    enable_private_nodes    = var.gke_enable_private_nodes
+    enable_private_endpoint = var.gke_enable_private_endpoint
+    master_ipv4_cidr_block  = var.gke_master_ipv4_cidr_block
+  }
+
   cluster_autoscaling {
     enabled = true
     resource_limits {
