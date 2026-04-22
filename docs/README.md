@@ -1,13 +1,3 @@
-# Documentation Index
-
-## Grading and Evidence
-
-- [report.md](report.md)
-
-
-## Repository Map
-- [FILE_CLASSIFICATION.md](FILE_CLASSIFICATION.md)
-
 ## Main Project Areas
 - [main.tf](../main.tf)
 - [variables.tf](../variables.tf)
